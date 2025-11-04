@@ -15,7 +15,7 @@ env:
   KERNEL_SOURCE : "https://github.com/fukiame/android_kernel_vsmart_msm8953"
   KERNEL_BRANCH : "lineage-22.2"
 
-  CLANG_SOURCE : "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/LLVM-19.1.7-Linux-X64.tar.xz"
+  CLANG_SOURCE : "https://github.com/erabye/shattered-clang/releases/download/shattered-Clang-15.0.7/shattered-Clang-15.0.7.tar.gz"
   CLANG_BRANCH : ""
 
   GCC_GNU : false
