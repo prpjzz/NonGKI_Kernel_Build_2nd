@@ -1,4 +1,4 @@
-name: Build Sample YAML
+name: Build VSmart Joy 3 (A15) - SukiSUS
 
 on:
   workflow_call:
@@ -139,22 +139,6 @@ jobs:
           # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/get_cred.patch
           # patch -p1 < get_cred.patch
 
-          # Patch LZ4 Updated
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4_1100_to_49.patch
-          patch -p1 < lz4_1100_to_49.patch
-
-          # Patch LZ4K LZ4OPLUS LZ4K
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4k_kd_oplus_to_49.patch
-          patch -p1 < lz4k_kd_oplus_to_49.patch || true
-
-          # Patch LZ4 Fixed
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4_fixed.patch
-          patch -p1 < lz4_fixed.patch || true
-
-          # Patch Simple LMK
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/simple_lmk_to_49.patch
-          patch -p1 < simple_lmk_to_49.patch || true
-
           # Patch Zstd Updated
           wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/zstd_157_to_49.patch
           patch -p1 < zstd_157_to_49.patch || true
@@ -174,22 +158,10 @@ jobs:
           ## Cgroup Workingset
           echo "CONFIG_HW_CGROUP_WORKINGSET=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
-          # LZ4KD
-          echo "CONFIG_CRYPTO_LZ4K=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-
-          # Simple LMK
-          echo "# CONFIG_MEMCG is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "# CONFIG_MEMCG_SWAP is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "# CONFIG_MEMCG_SWAP_ENABLED is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_ANDROID_SIMPLE_LMK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_ANDROID_SIMPLE_LMK_AGGRESSION=1" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_ANDROID_SIMPLE_LMK_MINFREE=100" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-
           # Zram Writeback
           # echo "CONFIG_ZRAM_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # echo "CONFIG_ZRAM_ENTROPY=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          
       - name: 🧰 Patch Kernel of Re:Kernel
         uses: ./.github/workflows/patch-rekernel
 
