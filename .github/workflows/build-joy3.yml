@@ -119,26 +119,6 @@ jobs:
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
 
-           # Patch Cgroup V2
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/cgroupv2_fork_to_49.patch
-          patch -p1 < cgroupv2_fork_to_49.patch
-
-          # Patch Binder 54 A11
-          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/binder_5_4_a11_to_49.patch
-          # patch -p1 < binder_5_4_a11_to_49.patch
-
-          # Patch Binder 515 A13
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/binder_5_15_to_49.patch
-          patch -p1 < binder_5_15_to_49.patch
-
-          # Patch Cgroup Workingset
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/cgroup_workingset.patch
-          patch -p1 < cgroup_workingset.patch
-
-          # Patch get_cred_rcu
-          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/get_cred.patch
-          # patch -p1 < get_cred.patch
-
           # Patch Zstd Updated
           wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/zstd_157_to_49.patch
           patch -p1 < zstd_157_to_49.patch || true
@@ -146,18 +126,7 @@ jobs:
           # Patch Wireguard Fixed
           wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/wireguard_fixed.patch
           patch -p1 < wireguard_fixed.patch || true
-
-          # Binder
-          sed -i '/^CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder"$/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          ## Binderfs
-          echo "CONFIG_BINDERFS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-
-          # Cgroup V2
-          echo "CONFIG_BLK_CGROUP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_CGROUP_RDMA=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          ## Cgroup Workingset
-          echo "CONFIG_HW_CGROUP_WORKINGSET=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-
+          
           # Zram Writeback
           # echo "CONFIG_ZRAM_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # echo "CONFIG_ZRAM_ENTROPY=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
