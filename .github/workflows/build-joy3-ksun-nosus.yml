@@ -1,4 +1,4 @@
-name: Build Sample YAML
+name: Build VSmart Joy 3 - KSUN - NoSUS
 
 on:
   workflow_call:
