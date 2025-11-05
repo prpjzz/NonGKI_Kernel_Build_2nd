@@ -32,7 +32,7 @@ env:
   KERNELSU_SOURCE : "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh"
   KERNELSU_BRANCH : "susfs-main"
 
-  KERNELSU_AUTO_GET : "false" # if u want easy setting kernelsu, u can true.
+  KERNELSU_AUTO_GET : "true" # if u want easy setting kernelsu, u can true.
   KERNELSU_AUTO_FORK : "sukisu" # magic, rsuntk, next, wild, jingmatrix and sukisu
 
   SUSFS_ENABLE : true
@@ -66,7 +66,7 @@ env:
 
   REKERNEL_ENABLE: "true" # if u need Re:Kernel.
 
-  HOOK_METHOD: "manual" # manual hook method,can choice : normal, syscall and tracepoint.
+  HOOK_METHOD: "normal" # manual hook method,can choice : normal, syscall and tracepoint.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
 
   KPM_ENABLE: "true" # Only use it for SukiSU-Ultra.
