@@ -16,7 +16,7 @@ runs:
           # Core
           if [[ "${{ env.SUSFS_FIXED }}" == true ]]; then
             if [ -z "${{ env.PATCHES_SOURCE }}" ] || [ -z "${{ env.PATCHES_BRANCH }}" ]; then
-              echo "Please input vaild source and branch!"
+              echo "Please input a vaild source and branch!"
               false
             elif [[ "${{ env.PATCHES_SOURCE }}" == *".git" ]]; then
               echo "Please do not set a full URL in PATCH_SOURCE!"
@@ -80,7 +80,7 @@ runs:
           # Check SuSFS
           if grep -q "CONFIG_KSU_SUSFS" "fs/namespace.c"; then
             echo ">>>>>>>>>>>>Check<<<<<<<<<<<<"
-            echo ">Checked SuSFS Patched,Skip.<"
+            echo ">SuSFS is already patched, skipping.<"
             echo ">>>>>>>>>>>>>> <<<<<<<<<<<<<<"
             echo "SUSFS_SKIP=true" >> $GITHUB_ENV
           else
@@ -105,7 +105,7 @@ runs:
 
             if [[ "${{ env.SKIP_PATCH }}" == "true" ]] || [ -n "${{ env.SUSFS_155_FIXED }}" ]; then
                 echo "[+] SuSFS Patch Version: v1.5.5. "
-                echo "[+] SKIP_PATCH enabled or found SuSFS v1.5.5 Fixed Patch, Skipped."
+                echo "[+] SKIP_PATCH enabled or found SuSFS v1.5.5 Fixed Patch, skipping."
                 PACK_FILES
             elif [[ "${{ env.SKIP_PATCH }}" != "true" ]] || [ -z "${{ env.SUSFS_155_FIXED }}" ]; then
                 echo "[+] SuSFS Patch Version: v1.5.5. "
@@ -122,7 +122,7 @@ runs:
           cd $GITHUB_WORKSPACE/device_kernel/
 
           if [[ -z "${{ env.SUSFS_155_FIXED }}" ]]; then
-            echo "Your doesn't powered any patch file."
+            echo "You didn't provide any patch file."
           else
             IFS=',' read -ra FIXED_LIST <<< "${{ env.SUSFS_155_FIXED }}"
             echo "<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>"
@@ -134,7 +134,7 @@ runs:
                 cp NonGKI_Kernel_Patches/"${{ env.SUSFS_FOLDER_FIXED }}"/${FIXED_LIST[$i]}.patch ./
               fi
               patch -p1 < ${FIXED_LIST[$i]}.patch || true
-              echo "Patch fine!"
+              echo "Patching successful!"
               echo "<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>"
             done
           fi
@@ -227,7 +227,7 @@ runs:
             REJ_FOUND "1.5.10"
           else
             echo "============================================================"
-            echo "=Your kernelsu fork cannot supported SuSFS 1.5.10, Skipped.="
+            echo "=Your KernelSU fork doesn't support SuSFS 1.5.10, skipping.="
             echo "============================================================"
           fi
 
@@ -242,7 +242,7 @@ runs:
             REJ_FOUND "1.5.11"
           else
             echo "============================================================"
-            echo "=Your kernelsu fork cannot supported SuSFS 1.5.11, Skipped.="
+            echo "=Your KernelSU fork doesn't support SuSFS 1.5.11, skipping.="
             echo "============================================================"
           fi
 
@@ -257,7 +257,7 @@ runs:
             REJ_FOUND "1.5.12"
           else
             echo "============================================================"
-            echo "=Your kernelsu fork cannot supported SuSFS 1.5.12, Skipped.="
+            echo "=Your KernelSU fork doesn't support SuSFS 1.5.12, skipping.="
             echo "============================================================"
           fi
 
@@ -272,9 +272,17 @@ runs:
             REJ_FOUND "1.5.13"
           else
             echo "============================================================"
-            echo "=Your kernelsu fork cannot supported SuSFS 1.5.13, Skipped.="
+            echo "=Your KernelSU fork doesn't support SuSFS 1.5.13, skipping.="
             echo "============================================================"
           fi
+
+          # Clean SUS_SU
+          CLEAN_FILES=("fs/devpts/inode.c" "fs/exec.c" "fs/open.c" "fs/stat.c")
+
+          for file in "${CLEAN_FILES[@]}"; do
+            sed -i '/#ifdef CONFIG_KSU_SUSFS_SUS_SU/,/#endif/d' "${file}"
+            echo "Cleaned SUS_SU for ${file}."
+          done
 
       - name: Updated SUSFS Patch Fixed
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_UPDATE == 'true' && env.SUSFS_SKIP != 'true'
@@ -283,7 +291,7 @@ runs:
           cd $GITHUB_WORKSPACE/device_kernel/
 
           if [[ -z "${{ env.SUSFS_LATEST_FIXED }}" ]]; then
-            echo "Your doesn't powered any patch file."
+            echo "You didn't provide any patch file."
           else
             IFS=',' read -ra FIXED_LIST <<< "${{ env.SUSFS_LATEST_FIXED }}"
             echo "<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>"
@@ -295,7 +303,7 @@ runs:
                 cp NonGKI_Kernel_Patches/"${{ env.SUSFS_FOLDER_FIXED }}"/${FIXED_LIST[$i]}.patch ./
               fi
               patch -p1 < ${FIXED_LIST[$i]}.patch || true
-              echo "Patch fine!"
+              echo "Patch successful!"
               echo "<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>"
             done
           fi
