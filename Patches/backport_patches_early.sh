@@ -12,6 +12,7 @@ patch_files=(
     include/linux/cred.h
     include/linux/uaccess.h
     mm/maccess.c
+    include/linux/seccomp.h
 )
 
 KERNEL_VERSION=$(head -n 3 Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')
@@ -130,6 +131,15 @@ EOF
         else
             sed -i 's/\* strncpy_from_unsafe_user: - Copy a NUL terminated string from unsafe user/\* strncpy_from_user_nofault: - Copy a NUL terminated string from unsafe user/' mm/maccess.c
             sed -i 's/long strncpy_from_unsafe_user(char \*dst, const void __user \*unsafe_addr,/long strncpy_from_user_nofault(char *dst, const void __user *unsafe_addr,/' mm/maccess.c
+        fi
+        ;;
+
+    # include/ changes
+    ## linux/seccomp.h
+    include/linux/seccomp.h)
+        if grep "atomic_t filter_count;" "/include/linux/seccomp.h"; then
+            sed -i '/int mode;/a\	atomic_t filter_count;' include/linux/seccomp.h
+            sed -i '/#include <linux\/thread_info.h>/a\#include <linux/atomic.h>' include/linux/seccomp.h
         fi
         ;;
     esac

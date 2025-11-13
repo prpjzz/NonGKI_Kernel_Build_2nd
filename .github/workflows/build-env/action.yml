@@ -243,8 +243,17 @@ runs:
 
           elif [ "${{ env.SYSTEM_VERSION }}" == "arch" ]; then
 
+            pacman-key --init
             pacman -Syyu --noconfirm
-            pacman -S git base-devel systemd wget rustup curl patch ccache automake flex lzop bison gperf zip curl bzip2 squashfs-tools pngcrush schedtool make optipng maven pwgen minicom bc unzip 7zip zstd binutils gcc wget which libxml2-legacy cpio coccinelle --noconfirm
+            pacman -S git base-devel systemd wget rustup curl patch ccache automake flex lzop bison gperf zip curl bzip2 squashfs-tools pngcrush schedtool make optipng maven pwgen minicom bc unzip 7zip zstd binutils gcc wget which libxml2-legacy cpio --noconfirm
+
+            # Install Coccinelle
+            if [[ "${{ env.HIDE_STUFF }}" == "true" ]]; then
+                echo -e "\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/\$arch" >> /etc/pacman.conf
+                pacman -Syy
+                pacman -S archlinuxcn-keyring --noconfirm
+                pacman -S coccinelle --noconfirm
+            fi
 
             if [ "${{ env.PYTHON_VERSION }}" == "3" ]; then
                 pacman -S python3 --noconfirm
