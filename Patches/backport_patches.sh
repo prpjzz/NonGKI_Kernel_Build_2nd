@@ -6,11 +6,12 @@
 patch_files=(
     fs/namespace.c
     fs/internal.h
-    kernel/trace/bpf_trace.c
-    kernel/trace/trace_kprobe.c
     include/linux/uaccess.h
     mm/maccess.c
-    include/linux/seccomp.h
+    security/selinux/hooks.c
+    security/selinux/selinuxfs.c
+    security/selinux/xfrm.c
+    security/selinux/include/objsec.h
 )
 
 KERNEL_VERSION=$(head -n 3 Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')
@@ -20,13 +21,13 @@ SECOND_VERSION=$(echo "$KERNEL_VERSION" | awk -F '.' '{print $2}')
 for i in "${patch_files[@]}"; do
 
     if grep -q "path_umount" "$i"; then
-        echo "Warning: $i contains KernelSU"
+        echo "Warning: $i contains Backport"
         continue
-    elif grep -q "get_cred_rcu" "$i"; then
-        echo "Warning: $i contains KernelSU"
+    elif grep -q "selinux_inode" "$i"; then
+        echo "Warning: $i contains Backport"
         continue
-    elif grep -q "strncpy_from_user_nofault" "$i"; then
-        echo "Warning: $i contains KernelSU"
+    elif grep -q "selinux_cred" "$i"; then
+        echo "Warning: $i contains Backport"
         continue
     fi
 
@@ -53,27 +54,12 @@ for i in "${patch_files[@]}"; do
         fi
         ;;
 
-    # kernel/ changes
-    ## kernel/trace
-    ### kernel/trace/bpf_trace.c
-    kernel/trace/bpf_trace.c)
-        if [ "$KERNEL_VERSION" == "5.4" ]; then
-            sed -i 's/\bstrncpy_from_unsafe_user\b/strncpy_from_user_nofault/g' kernel/trace/bpf_trace.c
-        fi
-        ;;
-    ### kernel/trace/trace_kprobe.c
-    kernel/trace/trace_kprobe.c)
-        if [ "$KERNEL_VERSION" == "5.4" ]; then
-            sed -i 's/\bstrncpy_from_unsafe_user\b/strncpy_from_user_nofault/g' kernel/trace/trace_kprobe.c
-        fi
-        ;;
-
     # include/ changes
     ## include/linux/uaccess.h
     include/linux/uaccess.h)
-        if [ "$FIRST_VERSION" -lt 4 ] && [ "$SECOND_VERSION" -lt 18 ]; then
+        if [ "$FIRST_VERSION" -lt 4 ] && [ "$SECOND_VERSION" -lt 18 ] && grep -q "strncpy_from_user_nofault" "drivers/kernelsu/ksud.c"; then
             sed -i '/#endif\t\t\/\* ARCH_HAS_NOCACHE_UACCESS \*\//a long strncpy_from_user_nofault(char *dst, const void __user *unsafe_addr, long count);' include/linux/uaccess.h
-        else
+        elif grep -q "strncpy_from_user_nofault" "drivers/kernelsu/ksud.c"; then
             sed -i 's/^extern long strncpy_from_unsafe_user/long strncpy_from_user_nofault/' include/linux/uaccess.h
         fi
         ;;
@@ -81,7 +67,7 @@ for i in "${patch_files[@]}"; do
     # mm/ changes
     ## mm/maccess.c
     mm/maccess.c)
-        if [ "$FIRST_VERSION" -lt 4 ] && [ "$SECOND_VERSION" -lt 18 ]; then
+        if [ "$FIRST_VERSION" -lt 4 ] && [ "$SECOND_VERSION" -lt 18 ] && grep -q "strncpy_from_user_nofault" "drivers/kernelsu/ksud.c"; then
             cat <<EOF >> mm/maccess.c
 long strncpy_from_user_nofault(char *dst, const void __user *unsafe_addr, long count)
 {
@@ -108,18 +94,58 @@ long strncpy_from_user_nofault(char *dst, const void __user *unsafe_addr, long c
 }
 EOF
 
-        else
+        elif grep -q "strncpy_from_user_nofault" "drivers/kernelsu/ksud.c"; then
             sed -i 's/\* strncpy_from_unsafe_user: - Copy a NUL terminated string from unsafe user/\* strncpy_from_user_nofault: - Copy a NUL terminated string from unsafe user/' mm/maccess.c
             sed -i 's/long strncpy_from_unsafe_user(char \*dst, const void __user \*unsafe_addr,/long strncpy_from_user_nofault(char *dst, const void __user *unsafe_addr,/' mm/maccess.c
         fi
         ;;
 
-    # include/ changes
-    ## linux/seccomp.h
-    include/linux/seccomp.h)
-        if grep "atomic_t filter_count;" "/include/linux/seccomp.h"; then
-            sed -i '/int mode;/a\	atomic_t filter_count;' include/linux/seccomp.h
-            sed -i '/#include <linux\/thread_info.h>/a\#include <linux/atomic.h>' include/linux/seccomp.h
+    # security/
+    ## selinux/hooks.c
+    security/selinux/hooks.c)
+        if [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 20 ] && grep -q "selinux_inode" "drivers/kernelsu/supercalls.c"; then
+            sed -i 's/struct inode_security_struct \*isec = inode->i_security/struct inode_security_struct *isec = selinux_inode(inode)/g' security/selinux/hooks.c
+            sed -i 's/return inode->i_security/return selinux_inode(inode)/g' security/selinux/hooks.c
+            sed -i 's/\bisec = inode->i_security;/isec = selinux_inode(inode);/' security/selinux/hooks.c
+        fi
+
+        if [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 20 ] && grep -q "selinux_cred" "drivers/kernelsu/selinux/selinux.c"; then
+            sed -i 's/tsec = cred->security;/tsec = selinux_cred(cred);/g' security/selinux/hooks.c
+            sed -i 's/const struct task_security_struct \*tsec = cred->security;/const struct task_security_struct *tsec = selinux_cred(cred);/g' security/selinux/hooks.c
+            sed -i 's/const struct task_security_struct \*tsec = current_security();/const struct task_security_struct *tsec = selinux_cred(current_cred());/g' security/selinux/hooks.c
+            sed -i 's/rc = selinux_determine_inode_label(current_security()/rc = selinux_determine_inode_label(selinux_cred(current_cred())/g' security/selinux/hooks.c
+            sed -i 's/old_tsec = current_security();/old_tsec = selinux_cred(current_cred());/g' security/selinux/hooks.c
+            sed -i 's/new_tsec = bprm->cred->security;/new_tsec = selinux_cred(bprm->cred);/g' security/selinux/hooks.c
+            sed -i 's/rc = selinux_determine_inode_label(old->security/rc = selinux_determine_inode_label(selinux_cred(old)/g' security/selinux/hooks.c
+            sed -i 's/tsec = new->security;/tsec = selinux_cred(new);/g' security/selinux/hooks.c
+            sed -i 's/tsec = new_creds->security;/tsec = selinux_cred(new_creds);/g' security/selinux/hooks.c
+            sed -i 's/old_tsec = old->security;/old_tsec = selinux_cred(old);/g' security/selinux/hooks.c
+            sed -i 's/const struct task_security_struct \*old_tsec = old->security;/const struct task_security_struct *old_tsec = selinux_cred(old);/g' security/selinux/hooks.c
+            sed -i 's/struct task_security_struct \*tsec = new->security;/struct task_security_struct *tsec = selinux_cred(new);/g' security/selinux/hooks.c
+            sed -i 's/__tsec = current_security();/__tsec = selinux_cred(current_cred());/' security/selinux/hooks.c
+            sed -i 's/__tsec = __task_cred(p)->security;/__tsec = selinux_cred(__task_cred(p));/' security/selinux/hooks.c
+        fi
+        ;;
+    ## selinux/selinuxfs.c
+    security/selinux/selinuxfs.c)
+        if [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 20 ] && grep -q "selinux_inode" "drivers/kernelsu/supercalls.c"; then
+            sed -i 's/(struct inode_security_struct \*)inode->i_security/selinux_inode(inode)/g' security/selinux/selinuxfs.c
+        fi
+        ;;
+    ## selinux/xfrm.c
+    security/selinux/xfrm.c)
+        if [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 20 ] && grep -q "selinux_cred" "drivers/kernelsu/selinux/selinux.c"; then
+            sed -i 's/const struct task_security_struct \*tsec = current_security();/const struct task_security_struct *tsec = selinux_cred(current_cred());/g' security/selinux/xfrm.c
+        fi
+        ;;
+    ## selinux/include/objsec.h
+    security/selinux/include/objsec.h)
+        if [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 20 ] && grep -q "selinux_inode" "drivers/kernelsu/supercalls.c"; then
+            sed -i '/#endif \/\* _SELINUX_OBJSEC_H_ \*\//i\static inline struct inode_security_struct *selinux_inode(\n\t\t\t\t\t\tconst struct inode *inode)\n{\n\treturn inode->i_security;\n}\n' security/selinux/include/objsec.h
+        fi
+
+        if [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 20 ] && grep -q "selinux_cred" "drivers/kernelsu/selinux/selinux.c"; then
+            sed -i '/#endif \/\* _SELINUX_OBJSEC_H_ \*\//i\static inline struct task_security_struct *selinux_cred(const struct cred *cred)\n{\n\treturn cred->security;\n}\n' security/selinux/include/objsec.h
         fi
         ;;
     esac

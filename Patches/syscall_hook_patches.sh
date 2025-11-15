@@ -18,7 +18,6 @@ patch_files=(
 )
 
 PATCH_LEVEL="1.6"
-ENABLE_SECURITY="true"
 KERNEL_VERSION=$(head -n 3 Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')
 FIRST_VERSION=$(echo "$KERNEL_VERSION" | awk -F '.' '{print $1}')
 SECOND_VERSION=$(echo "$KERNEL_VERSION" | awk -F '.' '{print $2}')
@@ -69,10 +68,10 @@ for i in "${patch_files[@]}"; do
     ## open.c
     fs/open.c)
         if [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 19 ]; then
-            sed -i '/SYSCALL_DEFINE3(faccessat, int, dfd, const char __user \*, filename, int, mode)/i \#ifdef CONFIG_KSU\nextern int ksu_handle_faccessat(int \*dfd, const char __user \*\*filename_user, int \*mode,\n\t\t\t                     int \*flags);\n#endif' fs/open.c
+            sed -i '/^SYSCALL_DEFINE3(faccessat, int, dfd, const char __user \*, filename, int, mode)/i\#ifdef CONFIG_KSU\n__attribute__((hot))\nextern int ksu_handle_faccessat(int *dfd, const char __user **filename_user,\n\t\t\t\tint *mode, int *flags);\n#endif\n' fs/open.c
             sed -i '/if (mode & ~S_IRWXO)/i \#ifdef CONFIG_KSU\n\tksu_handle_faccessat(&dfd, &filename, &mode, NULL);\n#endif' fs/open.c
         else
-            sed -i '/SYSCALL_DEFINE3(faccessat, int, dfd, const char __user \*, filename, int, mode)/i \#ifdef CONFIG_KSU\nextern __attribute__((hot)) int ksu_handle_faccessat(int \*dfd, \n\t\t\t                    const char __user \*\*filename_user, int \*mode, int \*flags);\n#endif' fs/open.c
+            sed -i '/^SYSCALL_DEFINE3(faccessat, int, dfd, const char __user \*, filename, int, mode)/i\#ifdef CONFIG_KSU\n__attribute__((hot))\nextern int ksu_handle_faccessat(int *dfd, const char __user **filename_user,\n\t\t\t\tint *mode, int *flags);\n#endif\n' fs/open.c
             sed -i '/return do_faccessat(dfd, filename, mode);/i \#ifdef CONFIG_KSU\n\tksu_handle_faccessat(&dfd, &filename, &mode, NULL);\n#endif' fs/open.c
         fi
         ;;
@@ -80,10 +79,10 @@ for i in "${patch_files[@]}"; do
     ## read_write.c
     fs/read_write.c)
         if [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 19 ]; then
-            sed -i '/SYSCALL_DEFINE3(read, unsigned int, fd, char __user \*, buf, size_t, count)/i \#ifdef CONFIG_KSU\nextern bool ksu_vfs_read_hook __read_mostly;\nextern int ksu_handle_sys_read(unsigned int fd, char __user \*\*buf_ptr,\n\t\t\tsize_t \*count_ptr);\n#endif' fs/read_write.c
-            sed -i '/ret = vfs_read(f.file, buf, count, &pos);/i \#ifdef CONFIG_KSU\n\t\tif (unlikely(ksu_vfs_read_hook)) \n\t\t\tksu_handle_sys_read(fd, &buf, &count);\n#endif'
+            sed -i '/^SYSCALL_DEFINE3(read, unsigned int, fd, char __user \*, buf, size_t, count)/i \#ifdef CONFIG_KSU\nextern bool ksu_vfs_read_hook __read_mostly;\nextern __attribute__((cold)) int ksu_handle_sys_read(unsigned int fd,\n\t\t\tchar __user **buf_ptr, size_t *count_ptr);\n#endif' fs/read_write.c
+            sed -i '/ret = vfs_read(f.file, buf, count, &pos);/i \#ifdef CONFIG_KSU\n\t\tif (unlikely(ksu_vfs_read_hook)) \n\t\t\tksu_handle_sys_read(fd, &buf, &count);\n#endif' fs/read_write.c
         else
-            sed -i '/SYSCALL_DEFINE3(read, unsigned int, fd, char __user \*, buf, size_t, count)/i\#ifdef CONFIG_KSU\nextern bool ksu_vfs_read_hook __read_mostly;\nextern int ksu_handle_sys_read(unsigned int fd, char __user **buf_ptr,\n\t\t\tsize_t *count_ptr);\n#endif' fs/read_write.c
+            sed -i '/^SYSCALL_DEFINE3(read, unsigned int, fd, char __user \*, buf, size_t, count)/i \#ifdef CONFIG_KSU\nextern bool ksu_vfs_read_hook __read_mostly;\nextern __attribute__((cold)) int ksu_handle_sys_read(unsigned int fd,\n\t\t\tchar __user **buf_ptr, size_t *count_ptr);\n#endif' fs/read_write.c
             sed -i '/return ksys_read(fd, buf, count);/i\#ifdef CONFIG_KSU\n\tif (unlikely(ksu_vfs_read_hook))\n\t\tksu_handle_sys_read(fd, &buf, &count);\n#endif' fs/read_write.c
         fi
         ;;
@@ -107,7 +106,7 @@ for i in "${patch_files[@]}"; do
     # drivers/input changes
     ## input.c
     drivers/input/input.c)
-        sed -i '0,/void input_event(struct input_dev \*dev,/s//#ifdef CONFIG_KSU\nextern bool ksu_input_hook __read_mostly;\nextern int ksu_handle_input_handle_event(unsigned int \*type, unsigned int \*code, int \*value);\n#endif\n&/' drivers/input/input.c
+        sed -i '/^void input_event(struct input_dev \*dev,/i \#ifdef CONFIG_KSU\nextern bool ksu_input_hook __read_mostly;\nextern __attribute__((cold)) int ksu_handle_input_handle_event(\n\t\t\tunsigned int *type, unsigned int *code, int *value);\n#endif' drivers/input/input.c
         sed -i '0,/\tif (is_event_supported(type, dev->evbit, EV_MAX)) {/s//#ifdef CONFIG_KSU\n\tif (unlikely(ksu_input_hook))\n\t\tksu_handle_input_handle_event(\&type, \&code, \&value);\n#endif\n&/' drivers/input/input.c
         ;;
 
@@ -126,38 +125,18 @@ for i in "${patch_files[@]}"; do
     ## selinux/hooks.c
     security/selinux/hooks.c)
         if [ "$FIRST_VERSION" -lt 4 ] && [ "$SECOND_VERSION" -lt 18 ]; then
-            sed -i '/^static int selinux_bprm_set_creds(struct linux_binprm \*bprm)/i static int check_nnp_nosuid(const struct linux_binprm *bprm, struct task_security_struct *old_tsec, struct task_security_struct *new_tsec) {\n    int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);\n    int nosuid = (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID);\n    int rc;\n\n    if (!nnp && !nosuid)\n        return 0;\n\n    if (new_tsec->sid == old_tsec->sid)\n        return 0;\n\n    rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);\n    if (rc) {\n        if (nnp)\n            return -EPERM;\n        else\n            return -EACCES;\n    }\n    return 0;\n}\n' security/selinux/hooks.c
-            sed -i '/if *(bprm->unsafe *& *LSM_UNSAFE_NO_NEW_PRIVS)/, /return *-EPERM;/c\ \t\trc = check_nnp_nosuid(bprm, old_tsec, new_tsec);\n\t\tif (rc)\n\t\t\treturn rc;' security/selinux/hooks.c
-            awk '
-                                                       BEGIN { insert = 0 }
-                                                       /rc = security_transition_sid\(old_tsec->sid, isec->sid,/ { insert = 1 }
-                                                       { print }
-                                                       /return rc;/ {
-                                                         if (insert) {
-                                                           print "        rc = check_nnp_nosuid(bprm, old_tsec, new_tsec);"
-                                                           print "        if (rc)"
-                                                           print "            new_tsec->sid = old_tsec->sid;"
-                                                           insert = 0
-                                                         }
-                                                       }
-                                                       ' security/selinux/hooks.c > security/selinux/hooks.c.new && mv security/selinux/hooks.c.new security/selinux/hooks.c
-            sed -i '/^\tif ((bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID) ||$/{
-                                                       N
-                                                       N
-                                                       /^\tif ((bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID) ||\n\t    (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS))\n\t\tnew_tsec->sid = old_tsec->sid;$/d
-                                                       }' security/selinux/hooks.c
-            sed -i '/if (!nnp && !nosuid)/i \#ifdef CONFIG_KSU\n\tstatic u32 ksu_sid;\n\tchar *secdata;\n\tint error;\n\tu32 seclen;\n#endif' security/selinux/hooks.c
-            sed -i '/return 0; \/\* No change in credentials \*\//a\\n    if (!ksu_sid)\n        security_secctx_to_secid("u:r:su:s0", strlen("u:r:su:s0"), &ksu_sid);\n\n    error = security_secid_to_secctx(old_tsec->sid, &secdata, &seclen);\n    if (!error) {\n        rc = strcmp("u:r:init:s0", secdata);\n        security_release_secctx(secdata, seclen);\n        if (rc == 0 && new_tsec->sid == ksu_sid)\n            return 0;\n    }' security/selinux/hooks.c
+            sed -i '/^static int selinux_bprm_set_creds(struct linux_binprm \*bprm)/i \#ifdef CONFIG_KSU\nextern bool is_ksu_transition(const struct task_security_struct *old_tsec,\n\t\t\t\tconst struct task_security_struct *new_tsec);\n#endif' security/selinux/hooks.c
+            sed -i '/^\s*new_tsec->exec_sid = 0;/a \#ifdef CONFIG_KSU\n\t\tif (is_ksu_transition(old_tsec, new_tsec))\n\t\t\treturn 0;\n#endif' security/selinux/hooks.c
         elif [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 10 ]; then
-            sed -i '/^static int check_nnp_nosuid(const struct linux_binprm \*bprm,/i \#ifdef CONFIG_KSU\nextern bool is_ksu_transition(const struct task_security_struct *old_tsec, \n\t\t\t\tconst struct task_security_struct *new_tsec);\n#endif' security/selinux/hooks.c
-            sed -i '/return 0; \/\\* No change in credentials \\*\//a \#ifdef CONFIG_KSU\n\tif (is_ksu_transition(old_tsec, new_tsec))\n\t\treturn 0;\n#endif' security/selinux/hooks.c
+            sed -i '/^static int check_nnp_nosuid(const struct linux_binprm \*bprm,/i\#ifdef CONFIG_KSU\nextern bool is_ksu_transition(const struct task_security_struct *old_tsec,\n\t\t\t\tconst struct task_security_struct *new_tsec);\n#endif\n' security/selinux/hooks.c
+            sed -i '/rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);/i\#ifdef CONFIG_KSU\n\tif (is_ksu_transition(old_tsec, new_tsec))\n\t\treturn 0;\n#endif\n' security/selinux/hooks.c
         fi
         ;;
 
     # kernel/ changes
     ## kernel/reboot.c
     kernel/reboot.c)
-        if grep -q "ksu_handle_sys_reboot" "drivers/kernelsu/core_hook.c"; then
+        if grep -q "ksu_handle_sys_reboot" "drivers/kernelsu/core_hook.c" || grep -q "ksu_handle_sys_reboot" "kernel/supercalls.c"; then
             sed -i '/SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,/i \#ifdef CONFIG_KSU\n\extern int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd, void __user **arg);\n\#endif' kernel/reboot.c
             sed -i '/int ret = 0;/a \#ifdef CONFIG_KSU\n\tksu_handle_sys_reboot(magic1, magic2, cmd, &arg);\n\#endif' kernel/reboot.c
         fi

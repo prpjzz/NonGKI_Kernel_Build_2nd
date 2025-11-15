@@ -369,10 +369,22 @@ runs:
             fi
 
             echo "CONFIG_KSU_KPROBES_HOOK=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+
+            if [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 2 ]; then
+                echo "CONFIG_KSU_LSM_SECURITY_HOOKS=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+            else
+                echo "CONFIG_KSU_LSM_SECURITY_HOOKS=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+            fi
           fi
 
           if [[ "${{ env.KERNELSU_SOURCE }}" == *blackslashxx* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "magic" ]]; then
             echo "KSU_KPROBES_KSUD=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+
+            if [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 2 ]; then
+                echo "CONFIG_KSU_LSM_SECURITY_HOOKS=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+            else
+                echo "CONFIG_KSU_LSM_SECURITY_HOOKS=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+            fi
           fi
 
           if [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "sukisu" ]]; then
