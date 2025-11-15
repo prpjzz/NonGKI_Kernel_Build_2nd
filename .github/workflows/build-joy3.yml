@@ -33,7 +33,7 @@ env:
   KERNELSU_BRANCH : "susfs-main"
 
   KERNELSU_AUTO_GET : "true" # if u want easy setting kernelsu, u can true.
-  KERNELSU_AUTO_FORK : "sukisu" # magic, rsuntk, next, wild, jingmatrix and sukisu
+  KERNELSU_AUTO_FORK : "rsuntk" # magic, rsuntk, next, wild, jingmatrix and sukisu
 
   SUSFS_ENABLE : true
   SUSFS_FIXED : true
@@ -55,7 +55,7 @@ env:
   PACK_METHOD: "Anykernel3" # Anykernel3 need SOURCE and BRANCH, MKBOOTIMG needn't it.
 
   KERNELSU_METHOD: "shell" # shell, manual and only.
-  KERNELSU_SUS_PATCH: "true"
+  KERNELSU_SUS_PATCH: "false"
   
   PATCHES_SOURCE: "JackA1ltman/NonGKI_Kernel_Patches" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
   PATCHES_BRANCH: "mi_kernel" # [your_branch] -> main
@@ -64,12 +64,12 @@ env:
   SUSFS_155_FIXED: "susfs_155_fixed" # Fill in your patches here. If there are multiple patches, please separate them with a comma. Leave it blank if there isn't one. -> patch1,patch2 (Only v1.5.5 SuSFS)
   SUSFS_LATEST_FIXED: "" # Fill in your patches here. If there are multiple patches, please separate them with a comma. Leave it blank if there isn't one. -> patch1,patch2
 
-  REKERNEL_ENABLE: "false" # if u need Re:Kernel.
+  REKERNEL_ENABLE: "true" # if u need Re:Kernel.
 
   HOOK_METHOD: "normal" # manual hook method,can choice : normal, syscall and tracepoint.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
 
-  KPM_ENABLE: "true" # Only use it for SukiSU-Ultra.
+  KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
   KPM_PATCH_SOURCE: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
 
   BASEBAND_GUARD_ENABLE: "false" #if u want prevent unauthorized writes to critical partitions/device nodes.
@@ -118,6 +118,65 @@ jobs:
         run: |
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
+
+          # Patch Cgroup V2
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/cgroupv2_fork_to_49.patch
+          patch -p1 < cgroupv2_fork_to_49.patch
+
+          # Patch Binder 515 A13
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/binder_5_15_to_49.patch
+          patch -p1 < binder_5_15_to_49.patch
+
+          # Patch Cgroup Workingset
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/cgroup_workingset.patch
+          patch -p1 < cgroup_workingset.patch
+
+          # Patch LZ4 Updated
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4_1100_to_49.patch
+          patch -p1 < lz4_1100_to_49.patch
+
+          # Patch LZ4K LZ4OPLUS LZ4K
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4k_kd_oplus_to_49.patch
+          patch -p1 < lz4k_kd_oplus_to_49.patch || true
+
+          # Patch LZ4 Fixed
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4_fixed.patch
+          patch -p1 < lz4_fixed.patch || true
+
+          # Patch Simple LMK
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/simple_lmk_to_49.patch
+          patch -p1 < simple_lmk_to_49.patch || true
+
+          # Patch Zstd Updated
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/zstd_157_to_49.patch
+          patch -p1 < zstd_157_to_49.patch || true
+
+          # Binder
+          sed -i '/^CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder"$/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          ## Binderfs
+          echo "CONFIG_BINDERFS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+
+          # Cgroup V2
+          echo "CONFIG_BLK_CGROUP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_CGROUP_RDMA=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          ## Cgroup Workingset
+          echo "CONFIG_HW_CGROUP_WORKINGSET=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+
+          # LZ4KD
+          echo "CONFIG_CRYPTO_LZ4K=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+
+          # Simple LMK
+          sed -i '/obj-\$(CONFIG_ANDROID_BINDER_IPC_SELFTEST) += binder_alloc_selftest.o/a obj-\$(CONFIG_ANDROID_SIMPLE_LMK)\t+= simple_lmk.o' drivers/android/Makefile
+
+          echo "# CONFIG_MEMCG is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "# CONFIG_MEMCG_SWAP is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "# CONFIG_MEMCG_SWAP_ENABLED is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_ANDROID_SIMPLE_LMK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_ANDROID_SIMPLE_LMK_AGGRESSION=1" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_ANDROID_SIMPLE_LMK_MINFREE=100" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          
           
       - name: 🧰 Patch Kernel of Re:Kernel
         uses: ./.github/workflows/patch-rekernel
