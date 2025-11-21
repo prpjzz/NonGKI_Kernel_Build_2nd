@@ -65,7 +65,7 @@ env:
 
   REKERNEL_ENABLE: "false" # if u need Re:Kernel.
 
-  HOOK_METHOD: "normal" # manual hook method,can choice : normal, syscall and tracepoint.
+  HOOK_METHOD: "normal" # Manual hook method ->  syscall and tracepoint.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
 
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.

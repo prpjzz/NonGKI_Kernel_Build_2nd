@@ -54,7 +54,7 @@ runs:
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
           echo "# CONFIG_KSU_SUSFS_SUS_SU is not set" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
 
-          if grep -q "CMD_SUSFS_ADD_SUS_MAP" "drivers/kernelsu/core_hook.c"; then
+          if grep -q "CMD_SUSFS_ADD_SUS_MAP" "drivers/kernelsu/core_hook.c" >/dev/null 2>&1 || grep -q "CMD_SUSFS_ADD_SUS_MAP" "drivers/kernelsu/supercalls.c" >/dev/null 2>&1; then
             echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
           fi
 
@@ -217,7 +217,7 @@ runs:
           REJ_FOUND "1.5.9"
 
           # Upgrade 1.5.10
-          if grep -q "CMD_SUSFS_ENABLE_AVC_LOG_SPOOFING" "drivers/kernelsu/core_hook.c"; then
+          if grep -q "CMD_SUSFS_ENABLE_AVC_LOG_SPOOFING" "drivers/kernelsu/core_hook.c" >/dev/null 2>&1 || grep -q "CMD_SUSFS_ENABLE_AVC_LOG_SPOOFING" "drivers/kernelsu/supercalls.c" >/dev/null 2>&1 || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "sukisu" ]]; then
             cp /tmp/Patches/Patch/susfs_upgrade_to_1510_${{ env.KERNEL_VERSION }}.patch ./
             patch -p1 < susfs_upgrade_to_1510_${{ env.KERNEL_VERSION }}.patch || true
             echo "================="
@@ -232,7 +232,7 @@ runs:
           fi
 
           # Upgrade 1.5.11
-          if grep -q "susfs_reorder_mnt_id" "drivers/kernelsu/core_hook.c"; then
+          if grep -q "susfs_reorder_mnt_id" "drivers/kernelsu/core_hook.c" >/dev/null 2>&1 || grep -q "susfs_reorder_mnt_id" "drivers/kernelsu/setuid_hook.c.c" >/dev/null 2>&1 || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "sukisu" ]]; then
             cp /tmp/Patches/Patch/susfs_upgrade_to_1511_${{ env.KERNEL_VERSION }}.patch ./
             patch -p1 < susfs_upgrade_to_1511_${{ env.KERNEL_VERSION }}.patch || true
             echo "================="
@@ -247,7 +247,7 @@ runs:
           fi
 
           # Upgrade 1.5.12
-          if grep -q "susfs_reorder_mnt_id" "drivers/kernelsu/core_hook.c"; then
+          if grep -q "susfs_reorder_mnt_id" "drivers/kernelsu/core_hook.c" >/dev/null 2>&1 || grep -q "susfs_reorder_mnt_id" "drivers/kernelsu/setuid_hook.c.c" >/dev/null 2>&1 || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "sukisu" ]]; then
             cp /tmp/Patches/Patch/susfs_upgrade_to_1512_${{ env.KERNEL_VERSION }}.patch ./
             patch -p1 < susfs_upgrade_to_1512_${{ env.KERNEL_VERSION }}.patch || true
             echo "================="
@@ -261,18 +261,33 @@ runs:
             echo "============================================================"
           fi
 
-          # Upgrade 1.5.13
-          if grep -q "CMD_SUSFS_ADD_SUS_MAP" "drivers/kernelsu/core_hook.c"; then
-            cp /tmp/Patches/Patch/susfs_upgrade_to_1513_${{ env.KERNEL_VERSION }}.patch ./
-            patch -p1 < susfs_upgrade_to_1513_${{ env.KERNEL_VERSION }}.patch || true
+          # Upgrade 2.0.00
+          if grep -q "CMD_SUSFS_ADD_SUS_MAP" "drivers/kernelsu/core_hook.c" >/dev/null 2>&1 || grep -q "CMD_SUSFS_ADD_SUS_MAP" "drivers/kernelsu/supercalls.c" >/dev/null 2>&1 || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "sukisu" ]]; then
+            cp /tmp/Patches/Patch/susfs_upgrade_to_2000_${{ env.KERNEL_VERSION }}.patch ./
+            patch -p1 < susfs_upgrade_to_2000_${{ env.KERNEL_VERSION }}.patch || true
             echo "================="
-            echo "=Upgraded 1.5.13="
+            echo "=Upgraded 2.0.00="
             echo "================="
 
-            REJ_FOUND "1.5.13"
+            REJ_FOUND "2.0.00"
           else
             echo "============================================================"
-            echo "=Your KernelSU fork doesn't support SuSFS 1.5.13, skipping.="
+            echo "=Your KernelSU fork doesn't support SuSFS 2.0.00, skipping.="
+            echo "============================================================"
+          fi
+
+          # Upgrade 2.0.01
+          if grep -q "KERNEL_PRIV_APP_DOMAIN" "drivers/kernelsu/selinux/selinux.c" >/dev/null 2>&1 || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "sukisu" ]]; then
+            cp /tmp/Patches/Patch/susfs_upgrade_to_2001_${{ env.KERNEL_VERSION }}.patch ./
+            patch -p1 < susfs_upgrade_to_2001_${{ env.KERNEL_VERSION }}.patch || true
+            echo "================="
+            echo "=Upgraded 2.0.01="
+            echo "================="
+
+            REJ_FOUND "2.0.01"
+          else
+            echo "============================================================"
+            echo "=Your KernelSU fork doesn't support SuSFS 2.0.01, skipping.="
             echo "============================================================"
           fi
 

@@ -53,7 +53,7 @@ It also aims to provide an easier compilation process using **GitHub Actions**, 
   - [ ] Supports compilation on ARM64.
 - [x] **Compilation**
   - [x] Supports ARM64 kernels.
-  - [x] Supports ARM (ARMV7A) kernels.
+  - [ ] Supports ARM (ARMV7A) kernels.(Aborted support.)
 
 ---
 

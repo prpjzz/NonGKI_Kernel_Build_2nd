@@ -17,7 +17,7 @@ runs:
             echo "[+] Added show_vma_header_prefix_fake."
           fi
 
-          if grep "struct dentry \*dentry" "fs/proc/task_mmu.c"; then
+          if grep -q "struct dentry \*dentry" "fs/proc/task_mmu.c"; then
             echo "[+] Found variable."
           else
             sed -i '/const char \*name = NULL;/a\    struct dentry *dentry;' fs/proc/task_mmu.c
