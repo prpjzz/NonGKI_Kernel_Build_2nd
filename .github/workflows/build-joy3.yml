@@ -119,104 +119,104 @@ jobs:
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
 
-          # Patch Cgroup V2
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/cgroupv2_fork_to_49.patch
-          patch -p1 < cgroupv2_fork_to_49.patch
+          # # Patch Cgroup V2
+          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/cgroupv2_fork_to_49.patch
+          # patch -p1 < cgroupv2_fork_to_49.patch
 
-          # Patch Binder 515 A13
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/binder_5_15_to_49.patch
-          patch -p1 < binder_5_15_to_49.patch
+          # # Patch Binder 515 A13
+          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/binder_5_15_to_49.patch
+          # patch -p1 < binder_5_15_to_49.patch
 
-          # Patch Cgroup Workingset
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/cgroup_workingset.patch
-          patch -p1 < cgroup_workingset.patch
+          # # Patch Cgroup Workingset
+          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/cgroup_workingset.patch
+          # patch -p1 < cgroup_workingset.patch
 
-          # Patch LZ4 Updated
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4_1100_to_49.patch
-          patch -p1 < lz4_1100_to_49.patch
+          # # Patch LZ4 Updated
+          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4_1100_to_49.patch
+          # patch -p1 < lz4_1100_to_49.patch
 
-          # Patch LZ4K LZ4OPLUS LZ4K
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4k_kd_oplus_to_49.patch
-          patch -p1 < lz4k_kd_oplus_to_49.patch || true
+          # # Patch LZ4K LZ4OPLUS LZ4K
+          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4k_kd_oplus_to_49.patch
+          # patch -p1 < lz4k_kd_oplus_to_49.patch || true
 
-          # Patch LZ4 Fixed
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4_fixed.patch
-          patch -p1 < lz4_fixed.patch || true
+          # # Patch LZ4 Fixed
+          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4_fixed.patch
+          # patch -p1 < lz4_fixed.patch || true
 
-          # Patch Simple LMK
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/simple_lmk_to_49.patch
-          patch -p1 < simple_lmk_to_49.patch || true
+          # # Patch Simple LMK
+          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/simple_lmk_to_49.patch
+          # patch -p1 < simple_lmk_to_49.patch || true
 
-          # Patch Zstd Updated
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/zstd_157_to_49.patch
-          patch -p1 < zstd_157_to_49.patch || true
+          # # Patch Zstd Updated
+          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/zstd_157_to_49.patch
+          # patch -p1 < zstd_157_to_49.patch || true
 
-          # Patch Blu Scheduitl and Pixel Scheduitl
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/sched_blu_pixutil_schedhorizon_and_rcu.patch
-          patch -p1 < sched_blu_pixutil_schedhorizon_and_rcu.patch || true
+          # # Patch Blu Scheduitl and Pixel Scheduitl
+          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/sched_blu_pixutil_schedhorizon_and_rcu.patch
+          # patch -p1 < sched_blu_pixutil_schedhorizon_and_rcu.patch || true
 
-          # Patch USB Video Class Gadget driver
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/uvc.patch
-          patch -p1 < uvc.patch || true
+          # # Patch USB Video Class Gadget driver
+          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/uvc.patch
+          # patch -p1 < uvc.patch || true
 
-          # Patch Wireguard Fixed
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/wireguard_fixed.patch
-          patch -p1 < wireguard_fixed.patch || true
+          # # Patch Wireguard Fixed
+          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/wireguard_fixed.patch
+          # patch -p1 < wireguard_fixed.patch || true
           
-          # Binder
-          sed -i '/^CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder"$/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          ## Binderfs
-          echo "CONFIG_BINDERFS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # # Binder
+          # sed -i '/^CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder"$/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # ## Binderfs
+          # echo "CONFIG_BINDERFS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
-          # Scheduitl
-          echo "CONFIG_CPU_FREQ_GOV_BLU_SCHEDUTIL=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_CPU_FREQ_GOV_PIXUTIL=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_CPU_FREQ_GOV_SCHEDHORIZON=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # # Scheduitl
+          # echo "CONFIG_CPU_FREQ_GOV_BLU_SCHEDUTIL=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_CPU_FREQ_GOV_PIXUTIL=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_CPU_FREQ_GOV_SCHEDHORIZON=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
-          # Cgroup V2
-          echo "CONFIG_BLK_CGROUP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_CGROUP_RDMA=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          ## Cgroup Workingset
-          echo "CONFIG_HW_CGROUP_WORKINGSET=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # # Cgroup V2
+          # echo "CONFIG_BLK_CGROUP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_CGROUP_RDMA=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # ## Cgroup Workingset
+          # echo "CONFIG_HW_CGROUP_WORKINGSET=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
-          # LZ4KD
-          echo "CONFIG_CRYPTO_LZ4K=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # # LZ4KD
+          # echo "CONFIG_CRYPTO_LZ4K=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
-          # USB Video Class Gadget driver
-          echo "CONFIG_USB_CONFIGFS_F_UVC=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_VIDEO_V4L2=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_VIDEO_DEV=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # # USB Video Class Gadget driver
+          # echo "CONFIG_USB_CONFIGFS_F_UVC=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_VIDEO_V4L2=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_VIDEO_DEV=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
-          # Block IO Controller
-          echo "CONFIG_BLK_CGROUP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_CGROUP_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # # Block IO Controller
+          # echo "CONFIG_BLK_CGROUP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_CGROUP_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
-          # RCU
-          echo "CONFIG_PREEMPT_RCU=y=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_SRCU=y=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_TREE_SRCU=y=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "# CONFIG_TASKS_RCU is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_RCU_STALL_COMMON=y=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_RCU_NEED_SEGCBLIST=y=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_RCU_FANOUT=64=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_RCU_FANOUT_LEAF=16=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_RCU_BOOST=y=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_RCU_BOOST_DELAY=500=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "# CONFIG_RCU_NOCB_CPU_ALL is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # # RCU
+          # echo "CONFIG_PREEMPT_RCU=y=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_SRCU=y=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_TREE_SRCU=y=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "# CONFIG_TASKS_RCU is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_RCU_STALL_COMMON=y=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_RCU_NEED_SEGCBLIST=y=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_RCU_FANOUT=64=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_RCU_FANOUT_LEAF=16=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_RCU_BOOST=y=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_RCU_BOOST_DELAY=500=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "# CONFIG_RCU_NOCB_CPU_ALL is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
-          # Simple LMK
-          sed -i '/obj-\$(CONFIG_ANDROID_BINDER_IPC_SELFTEST) += binder_alloc_selftest.o/a obj-\$(CONFIG_ANDROID_SIMPLE_LMK)\t+= simple_lmk.o' drivers/android/Makefile
+          # # Simple LMK
+          # sed -i '/obj-\$(CONFIG_ANDROID_BINDER_IPC_SELFTEST) += binder_alloc_selftest.o/a obj-\$(CONFIG_ANDROID_SIMPLE_LMK)\t+= simple_lmk.o' drivers/android/Makefile
 
-          echo "# CONFIG_MEMCG is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "# CONFIG_MEMCG_SWAP is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "# CONFIG_MEMCG_SWAP_ENABLED is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "# CONFIG_ANDROID_LOW_MEMORY_KILLER is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "# CONFIG_PSI is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_ANDROID_SIMPLE_LMK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_ANDROID_SIMPLE_LMK_AGGRESSION=1" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_ANDROID_SIMPLE_LMK_MINFREE=100" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "# CONFIG_MEMCG is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "# CONFIG_MEMCG_SWAP is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "# CONFIG_MEMCG_SWAP_ENABLED is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "# CONFIG_ANDROID_LOW_MEMORY_KILLER is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "# CONFIG_PSI is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_ANDROID_SIMPLE_LMK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_ANDROID_SIMPLE_LMK_AGGRESSION=1" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_ANDROID_SIMPLE_LMK_MINFREE=100" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           
           
       - name: 🧰 Patch Kernel of Re:Kernel
