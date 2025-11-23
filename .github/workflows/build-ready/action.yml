@@ -260,7 +260,7 @@ runs:
           cd $GITHUB_WORKSPACE/device_kernel
 
           # Clean Hook
-          cp /tmp/Patches/clean_hook.sh ./
+          cp /tmp/Bin/clean_hook.sh ./
           bash clean_hook.sh
 
       - name: KPM Function Support
@@ -305,7 +305,7 @@ runs:
 
           # Fork
           if [[ "${{ env.KERNELSU_SOURCE }}" == *rsuntk* ]] || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "sukisu" ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "rsuntk" ]]; then
-            if [[ ${{ env.SUSFS_ENABLE }} == "true" ]] && [[ ${{ env.SUSFS_UPDATE }} == "true" ]]; then
+            if [[ ${{ env.SUSFS_ENABLE }} == "true" ]] && [[ ${{ env.SUSFS_UPDATE }} == "true" ]] && [ -f "drivers/kernelsu/syscall_hook_manager.c" ] || [ -f "drivers/kernelsu/gki/syscall_hook_manager.c" ]; then
                 echo "CONFIG_KSU_MANUAL_HOOK=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
             else
                 echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}

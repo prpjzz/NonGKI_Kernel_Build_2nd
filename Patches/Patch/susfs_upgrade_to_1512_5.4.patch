@@ -1,5 +1,5 @@
 diff --git a/fs/namespace.c b/fs/namespace.c
-index b3b8894..cc7a3ad 100644
+index 43cef01..d95b481 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -53,7 +53,7 @@ extern void susfs_auto_add_sus_ksu_default_mount(const char __user *to_pathname)
@@ -113,7 +113,7 @@ index b3b8894..cc7a3ad 100644
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
  /* A copy of alloc_vfsmnt() but allocates the fake mnt_id to mnt */
  static struct mount *susfs_alloc_sus_vfsmnt(const char *name)
-@@ -1199,13 +1240,25 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
+@@ -1200,13 +1241,25 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
  	// We won't check it anymore if boot-completed stage is triggered.
  	if (susfs_is_boot_completed_triggered) {
@@ -142,7 +142,7 @@ index b3b8894..cc7a3ad 100644
  #endif
  	mnt = alloc_vfsmnt(old->mnt_devname);
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-@@ -2587,11 +2640,10 @@ static int do_loopback(struct path *path, const char *old_name,
+@@ -2536,11 +2589,10 @@ static int do_loopback(struct path *path, const char *old_name,
  #if defined(CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT) || defined(CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT)
  	// Check if bind mounted path should be hidden and umounted automatically.
  	// And we target only process with ksu domain.
@@ -157,7 +157,7 @@ index b3b8894..cc7a3ad 100644
  		}
  #endif
  #if defined(CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT)
-@@ -2600,9 +2652,6 @@ static int do_loopback(struct path *path, const char *old_name,
+@@ -2549,9 +2601,6 @@ static int do_loopback(struct path *path, const char *old_name,
  		}
  #endif
  	}
@@ -167,7 +167,7 @@ index b3b8894..cc7a3ad 100644
  #endif // #if defined(CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT) || defined(CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT)
  
  out2:
-@@ -3553,7 +3602,9 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
+@@ -3502,7 +3551,9 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
  	copy_flags = CL_COPY_UNBINDABLE | CL_EXPIRE;
  	if (user_ns != ns->user_ns)
  		copy_flags |= CL_SHARED_TO_SLAVE;
@@ -178,7 +178,7 @@ index b3b8894..cc7a3ad 100644
  	new = copy_tree(old, old->mnt.mnt_root, copy_flags);
  	if (IS_ERR(new)) {
  		namespace_unlock();
-@@ -4357,6 +4408,10 @@ void susfs_reorder_mnt_id(void) {
+@@ -4306,6 +4357,10 @@ void susfs_reorder_mnt_id(void) {
  	get_mnt_ns(mnt_ns);
  	first_mnt_id = list_first_entry(&mnt_ns->list, struct mount, mnt_list)->mnt_id;
  	list_for_each_entry(mnt, &mnt_ns->list, mnt_list) {
@@ -189,8 +189,199 @@ index b3b8894..cc7a3ad 100644
  		mnt->mnt.susfs_mnt_id_backup = mnt->mnt_id;
  		mnt->mnt_id = first_mnt_id++;
  	}
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index a7a2428..09e2b14 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -96,6 +96,9 @@
+ #include <linux/sched/stat.h>
+ #include <linux/posix-timers.h>
+ #include <linux/cpufreq_times.h>
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++#include <linux/susfs_def.h>
++#endif
+ #include <trace/events/oom.h>
+ #include "internal.h"
+ #include "fd.h"
+@@ -888,6 +891,9 @@ static ssize_t mem_rw(struct file *file, char __user *buf,
+ 	ssize_t copied;
+ 	char *page;
+ 	unsigned int flags;
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++	struct vm_area_struct *vma;
++#endif
+ 
+ 	if (!mm)
+ 		return 0;
+@@ -906,6 +912,22 @@ static ssize_t mem_rw(struct file *file, char __user *buf,
+ 
+ 	while (count > 0) {
+ 		size_t this_len = min_t(size_t, count, PAGE_SIZE);
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++		vma = find_vma(mm, addr);
++		if (vma && vma->vm_file) {
++			struct inode *inode = file_inode(vma->vm_file);
++			if (unlikely(inode->i_mapping->flags & BIT_SUS_MAPS) && susfs_is_current_proc_umounted()) {
++				if (write) {
++					copied = -EFAULT;
++				} else {
++					copied = -EIO;
++				}
++				*ppos = addr;
++				mmput(mm);
++				goto free;
++			}
++		}
++#endif
+ 
+ 		if (write && copy_from_user(page, buf, this_len)) {
+ 			copied = -EFAULT;
+@@ -2364,6 +2386,13 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
+ 	for (vma = mm->mmap, pos = 2; vma; vma = vma->vm_next) {
+ 		if (!vma->vm_file)
+ 			continue;
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++		if (unlikely(file_inode(vma->vm_file)->i_mapping->flags & BIT_SUS_MAPS) &&
++			susfs_is_current_proc_umounted())
++		{
++			continue;
++		}
++#endif
+ 		if (++pos <= ctx->pos)
+ 			continue;
+ 
+diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+index 0a1002c..0c464e9 100644
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -22,7 +22,7 @@
+ #include <linux/pkeys.h>
+ #include <linux/mm_inline.h>
+ #include <linux/ctype.h>
+-#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
++#if defined(CONFIG_KSU_SUSFS_SUS_KSTAT) || defined(CONFIG_KSU_SUSFS_SUS_MAP)
+ #include <linux/susfs_def.h>
+ #endif
+ 
+@@ -370,6 +370,24 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma)
+ 
+ 	if (file) {
+ 		struct inode *inode = file_inode(vma->vm_file);
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++		if (unlikely(inode->i_mapping->flags & BIT_SUS_MAPS) && susfs_is_current_proc_umounted()) {
++			seq_setwidth(m, 25 + sizeof(void *) * 6 - 1);
++			seq_put_hex_ll(m, NULL, vma->vm_start, 8);
++			seq_put_hex_ll(m, "-", vma->vm_end, 8);
++			seq_putc(m, ' ');
++			seq_putc(m, '-');
++			seq_putc(m, '-');
++			seq_putc(m, '-');
++			seq_putc(m, 'p');
++			seq_put_hex_ll(m, " ", pgoff, 8);
++			seq_put_hex_ll(m, " ", MAJOR(dev), 2);
++			seq_put_hex_ll(m, ":", MINOR(dev), 2);
++			seq_put_decimal_ull(m, " ", ino);
++			seq_putc(m, ' ');
++			goto done;
++		}
++#endif
+ #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+ 		if (unlikely(inode->i_mapping->flags & BIT_SUS_KSTAT)) {
+ 			susfs_sus_ino_for_show_map_vma(inode->i_ino, &dev, &ino);
+@@ -910,6 +928,35 @@ static void show_smap_vma(struct seq_file *m, void *v)
+ 
+ 	memset(&mss, 0, sizeof(mss));
+ 
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++	if (vma->vm_file &&
++		unlikely(file_inode(vma->vm_file)->i_mapping->flags & BIT_SUS_MAPS) &&
++		susfs_is_current_proc_umounted())
++	{
++		smap_gather_stats(vma, &mss);
++
++		show_map_vma(m, vma);
++		if (vma_get_anon_name(vma)) {
++			seq_puts(m, "Name:           ");
++			seq_print_vma_name(m, vma);
++		}
++
++		SEQ_PUT_DEC("Size:           ", vma->vm_end - vma->vm_start);
++		SEQ_PUT_DEC(" kB\nKernelPageSize: ", vma_kernel_pagesize(vma));
++		SEQ_PUT_DEC(" kB\nMMUPageSize:    ", vma_mmu_pagesize(vma));
++		seq_puts(m, " kB\n");
++
++		__show_smap(m, &mss, false);
++
++		seq_printf(m, "THPeligible:    %d\n", transparent_hugepage_enabled(vma));
++
++		if (arch_pkeys_enabled())
++			seq_printf(m, "ProtectionKey:  %8u\n", vma_pkey(vma));
++
++		goto bypass_orig_flow;
++	}
++#endif
++
+ 	smap_gather_stats(vma, &mss);
+ 
+ 	show_map_vma(m, vma);
+@@ -931,6 +978,9 @@ static void show_smap_vma(struct seq_file *m, void *v)
+ 
+ 	if (arch_pkeys_enabled())
+ 		seq_printf(m, "ProtectionKey:  %8u\n", vma_pkey(vma));
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++bypass_orig_flow:
++#endif
+ 	show_smap_vma_flags(m, vma);
+ }
+ 
+@@ -976,7 +1026,19 @@ static int show_smaps_rollup(struct seq_file *m, void *v)
+ 	hold_task_mempolicy(priv);
+ 
+ 	for (vma = priv->mm->mmap; vma; vma = vma->vm_next) {
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++		if (vma->vm_file &&
++			unlikely(file_inode(vma->vm_file)->i_mapping->flags & BIT_SUS_MAPS) &&
++			susfs_is_current_proc_umounted())
++		{
++			memset(&mss, 0, sizeof(mss));
++			goto bypass_orig_flow;
++		}
++#endif
+ 		smap_gather_stats(vma, &mss);
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++bypass_orig_flow:
++#endif
+ 		last_vma_end = vma->vm_end;
+ 	}
+ 
+@@ -1642,6 +1704,9 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
+ 	unsigned long start_vaddr;
+ 	unsigned long end_vaddr;
+ 	int ret = 0, copied = 0;
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++	struct vm_area_struct *vma;
++#endif
+ 
+ 	if (!mm || !mmget_not_zero(mm))
+ 		goto out;
+@@ -1698,6 +1763,15 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
+ 			goto out_free;
+ 		ret = walk_page_range(mm, start_vaddr, end, &pagemap_ops, &pm);
+ 		up_read(&mm->mmap_sem);
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++		vma = find_vma(mm, start_vaddr);
++		if (vma && vma->vm_file) {
++			struct inode *inode = file_inode(vma->vm_file);
++			if (unlikely(inode->i_mapping->flags & BIT_SUS_MAPS) && susfs_is_current_proc_umounted()) {
++				pm.buffer->pme = 0;
++			}
++		}
++#endif
+ 		start_vaddr = end;
+ 
+ 		len = min(count, PM_ENTRY_BYTES * pm.pos);
 diff --git a/fs/susfs.c b/fs/susfs.c
-index de54120..0f66cae 100644
+index de54120..bf8e9cc 100644
 --- a/fs/susfs.c
 +++ b/fs/susfs.c
 @@ -542,26 +542,24 @@ int susfs_add_sus_mount(struct st_susfs_sus_mount* __user user_info) {
@@ -293,20 +484,61 @@ index de54120..0f66cae 100644
  	new_list->info.mnt_mode = TRY_UMOUNT_DETACH;
  
  	INIT_LIST_HEAD(&new_list->list);
-@@ -1232,11 +1212,6 @@ int susfs_get_enabled_features(char __user* buf, size_t bufsize) {
- 	err = copy_config_to_buf("CONFIG_KSU_SUSFS_SUS_SU\n", buf_ptr, &copied_size, bufsize);
+@@ -1145,6 +1125,41 @@ struct filename* susfs_get_redirected_path(unsigned long ino) {
+ }
+ #endif // #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
+ 
++/* sus_map */
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++int susfs_add_sus_map(struct st_susfs_sus_map* __user user_info) {
++	struct st_susfs_sus_map info;
++	struct path path;
++	struct inode *inode = NULL;
++	int err = 0;
++
++	err = copy_from_user(&info, user_info, sizeof(info));
++	if (err) {
++		SUSFS_LOGE("failed copying from userspace\n");
++		return err;
++	}
++
++	err = kern_path(info.target_pathname, LOOKUP_FOLLOW, &path);
++	if (err) {
++		SUSFS_LOGE("Failed opening file '%s'\n", info.target_pathname);
++		return err;
++	}
++
++	if (!path.dentry->d_inode) {
++		err = -EINVAL;
++		goto out_path_put_path;
++	}
++	inode = d_inode(path.dentry);
++	spin_lock(&inode->i_lock);
++	set_bit(AS_FLAGS_SUS_MAP, &inode->i_mapping->flags);
++	SUSFS_LOGI("pathname: '%s', is flagged as AS_FLAGS_SUS_MAP\n", info.target_pathname);
++	spin_unlock(&inode->i_lock);
++	out_path_put_path:
++	path_put(&path);
++	return err;
++}
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
++
+ static int copy_config_to_buf(const char *config_string, char *buf_ptr, size_t *copied_size, size_t bufsize) {
+ 	size_t tmp_size = strlen(config_string);
+ 
+@@ -1233,8 +1248,8 @@ int susfs_get_enabled_features(char __user* buf, size_t bufsize) {
  	if (err) goto out_kfree_kbuf;
  	buf_ptr = kbuf + copied_size;
--#endif
+ #endif
 -#ifdef CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT
 -	err = copy_config_to_buf("CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT\n", buf_ptr, &copied_size, bufsize);
--	if (err) goto out_kfree_kbuf;
--	buf_ptr = kbuf + copied_size;
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++	err = copy_config_to_buf("CONFIG_KSU_SUSFS_SUS_MAP\n", buf_ptr, &copied_size, bufsize);
+ 	if (err) goto out_kfree_kbuf;
+ 	buf_ptr = kbuf + copied_size;
  #endif
- 	err = copy_to_user((void __user*)buf, (void *)kbuf, bufsize);
- out_kfree_kbuf:
 diff --git a/include/linux/susfs.h b/include/linux/susfs.h
-index c4167fd..80cf724 100644
+index c4167fd..c5b0c9d 100644
 --- a/include/linux/susfs.h
 +++ b/include/linux/susfs.h
 @@ -8,7 +8,7 @@
@@ -318,7 +550,21 @@ index c4167fd..80cf724 100644
  #if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
  #define SUSFS_VARIANT "NON-GKI"
  #else
-@@ -138,12 +138,6 @@ int susfs_add_sus_path(struct st_susfs_sus_path* __user user_info);
+@@ -127,6 +127,13 @@ struct st_susfs_open_redirect_hlist {
+ };
+ #endif
+ 
++/* sus_map */
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++struct st_susfs_sus_map {
++	char                             target_pathname[SUSFS_MAX_LEN_PATHNAME];
++};
++#endif
++
+ /***********************/
+ /* FORWARD DECLARATION */
+ /***********************/
+@@ -138,12 +145,6 @@ int susfs_add_sus_path(struct st_susfs_sus_path* __user user_info);
  /* sus_mount */
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
  int susfs_add_sus_mount(struct st_susfs_sus_mount* __user user_info);
@@ -331,7 +577,7 @@ index c4167fd..80cf724 100644
  #endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
  
  /* sus_kstat */
-@@ -157,9 +151,6 @@ void susfs_sus_ino_for_show_map_vma(unsigned long ino, dev_t *out_dev, unsigned
+@@ -157,9 +158,6 @@ void susfs_sus_ino_for_show_map_vma(unsigned long ino, dev_t *out_dev, unsigned
  #ifdef CONFIG_KSU_SUSFS_TRY_UMOUNT
  int susfs_add_try_umount(struct st_susfs_try_umount* __user user_info);
  void susfs_try_umount(uid_t target_uid);
@@ -341,11 +587,30 @@ index c4167fd..80cf724 100644
  #endif // #ifdef CONFIG_KSU_SUSFS_TRY_UMOUNT
  /* spoof_uname */
  #ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
+@@ -180,6 +178,10 @@ int susfs_spoof_cmdline_or_bootconfig(struct seq_file *m);
+ int susfs_add_open_redirect(struct st_susfs_open_redirect* __user user_info);
+ struct filename* susfs_get_redirected_path(unsigned long ino);
+ #endif
++/* sus_map */
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++int susfs_add_sus_map(struct st_susfs_sus_map* __user user_info);
++#endif
+ 
+ int susfs_get_enabled_features(char __user* buf, size_t bufsize);
+ void susfs_set_avc_log_spoofing(bool enabled);
 diff --git a/include/linux/susfs_def.h b/include/linux/susfs_def.h
-index 20981ac..2eb8791 100644
+index 20981ac..e94d558 100644
 --- a/include/linux/susfs_def.h
 +++ b/include/linux/susfs_def.h
-@@ -34,9 +34,9 @@
+@@ -27,6 +27,7 @@
+ #define CMD_SUSFS_SHOW_ENABLED_FEATURES 0x555e2
+ #define CMD_SUSFS_SHOW_VARIANT 0x555e3
+ #define CMD_SUSFS_ENABLE_AVC_LOG_SPOOFING 0x60010
++#define CMD_SUSFS_ADD_SUS_MAP 0x60020
+ 
+ #define SUSFS_MAX_LEN_PATHNAME 256 // 256 should address many paths already unless you are doing some strange experimental stuff, then set your own desired length
+ #define SUSFS_FAKE_CMDLINE_OR_BOOTCONFIG_SIZE 4096
+@@ -34,9 +35,9 @@
  #define TRY_UMOUNT_DEFAULT 0 /* used by susfs_try_umount() */
  #define TRY_UMOUNT_DETACH 1 /* used by susfs_try_umount() */
  
@@ -357,3 +622,18 @@ index 20981ac..2eb8791 100644
  
  /*
   * inode->i_state => storing flag 'INODE_STATE_'
+@@ -55,12 +56,14 @@
+ #define AS_FLAGS_OPEN_REDIRECT 27
+ #define AS_FLAGS_ANDROID_DATA_ROOT_DIR 28
+ #define AS_FLAGS_SDCARD_ROOT_DIR 29
++#define AS_FLAGS_SUS_MAP 30
+ #define BIT_SUS_PATH BIT(24)
+ #define BIT_SUS_MOUNT BIT(25)
+ #define BIT_SUS_KSTAT BIT(26)
+ #define BIT_OPEN_REDIRECT BIT(27)
+ #define BIT_ANDROID_DATA_ROOT_DIR BIT(28)
+ #define BIT_ANDROID_SDCARD_ROOT_DIR BIT(29)
++#define BIT_SUS_MAPS BIT(30)
+ 
+ #define ND_STATE_LOOKUP_LAST 32
+ #define ND_STATE_OPEN_LAST 64
