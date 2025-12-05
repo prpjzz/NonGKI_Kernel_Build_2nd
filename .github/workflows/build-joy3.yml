@@ -66,13 +66,13 @@ env:
 
   REKERNEL_ENABLE: "true" # if u need Re:Kernel.
 
-  HOOK_METHOD: "syscall" # manual hook method,can choice : normal, syscall and tracepoint.
+  HOOK_METHOD: "manual" # manual hook method,can choice : normal, syscall and tracepoint.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
 
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
   KPM_PATCH_SOURCE: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
 
-  BASEBAND_GUARD_ENABLE: "true" #if u want prevent unauthorized writes to critical partitions/device nodes.
+  BASEBAND_GUARD_ENABLE: "false" #if u want prevent unauthorized writes to critical partitions/device nodes.
   BASEBAND_GUARD_BOOT: "false" #if u want to protect boot partition.
 
   HIDE_STUFF: "true" 
@@ -159,9 +159,13 @@ jobs:
           # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/uvc.patch
           # patch -p1 < uvc.patch || true
 
-          # # Patch Wireguard Fixed
-          # wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/wireguard_fixed.patch
-          # patch -p1 < wireguard_fixed.patch || true
+          # Patch Wireguard Fixed
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/wireguard_fixed.patch
+          patch -p1 < wireguard_fixed.patch || true
+
+          # Patch Memory Optimize
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/mem_optimize.patch
+          patch -p1 < mem_optimize.patch || true
           
           # # Binder
           # sed -i '/^CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder"$/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
