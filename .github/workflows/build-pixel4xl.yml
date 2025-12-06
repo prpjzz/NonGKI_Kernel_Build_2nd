@@ -10,7 +10,7 @@ env:
   DEVICE_CODENAME : "coral"
 
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
-  EXTRA_CMDS : "LLVM=1 LLVM_IAS=1 LD=ld.lld"
+  EXTRA_CMDS : "LLVM=1 LLVM_IAS=1"
 
   KERNEL_SOURCE : "https://github.com/LineageOS/android_kernel_google_msm-4.14.git"
   KERNEL_BRANCH : "lineage-23.0"
