@@ -13,7 +13,7 @@ env:
   EXTRA_CMDS : "LLVM=1 LLVM_IAS=1 LD=ld.lld"
 
   KERNEL_SOURCE : "https://github.com/LineageOS/android_kernel_google_msm-4.14.git"
-  KERNEL_BRANCH : "15.0"
+  KERNEL_BRANCH : "lineage-23.0"
 
   CLANG_SOURCE : "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86.git"
   CLANG_BRANCH : "android-msm-coral-4.14-android13"
