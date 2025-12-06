@@ -10,7 +10,7 @@ env:
   DEVICE_CODENAME : "coral"
 
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
-  EXTRA_CMDS : "LLVM=1 LLVM_IAS=1"
+  EXTRA_CMDS : "LD=ld.lld"
 
   KERNEL_SOURCE : "https://github.com/LineageOS/android_kernel_google_msm-4.14.git"
   KERNEL_BRANCH : "lineage-23.0"
@@ -87,7 +87,7 @@ env:
 
 jobs:
   build-kernel:
-    name: Redmi K20 Pro (Based-AOSP A15) (Soviet-Star-OSS)
+    name: Pixel 4 XL
     runs-on: ubuntu-latest # u can changed to ubuntu 22.04, and need container set ubuntu-latest
     # container: archlinux/archlinux:latest # if u need use arch linux -> archlinux/archlinux:latest or ubuntu 20.04 -> ubuntu:focal
     env:
