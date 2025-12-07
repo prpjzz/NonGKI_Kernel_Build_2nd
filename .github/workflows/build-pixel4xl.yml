@@ -118,8 +118,8 @@ jobs:
 
           echo "CONFIG_LOCALVERSION_AUTO=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # Add additional tmpfs config setting
-          echo "CONFIG_TMPFS_XATTR=y" >> ./arch/arm64/configs/floral_defconfig
-          echo "CONFIG_TMPFS_POSIX_ACL=y" >> ./arch/arm64/configs/floral_defconfig
+          # echo "CONFIG_TMPFS_XATTR=y" >> ./arch/arm64/configs/floral_defconfig
+          # echo "CONFIG_TMPFS_POSIX_ACL=y" >> ./arch/arm64/configs/floral_defconfig
 
           # Somefixes
           sed -i 's/=m/=y/g' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
