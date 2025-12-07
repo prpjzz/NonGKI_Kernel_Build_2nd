@@ -15,14 +15,14 @@ env:
   KERNEL_SOURCE : "https://github.com/LineageOS/android_kernel_google_msm-4.14.git"
   KERNEL_BRANCH : "lineage-23.0"
 
-  CLANG_SOURCE : "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
-  CLANG_BRANCH : ""
+  CLANG_SOURCE : "https://github.com/TeraaBytee/google-clang"
+  CLANG_BRANCH : "11.0.2"
 
   GCC_GNU : false
-  GCC_64_SOURCE : "https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9.git"
-  GCC_64_BRANCH : "android-msm-coral-4.14-android13"
-  GCC_32_SOURCE : "https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9.git"
-  GCC_32_BRANCH : "android-msm-coral-4.14-android13"
+  GCC_64_SOURCE : "https://github.com/TeraaBytee/aarch64-linux-android-4.9"
+  GCC_64_BRANCH : "master"
+  GCC_32_SOURCE : "https://github.com/TeraaBytee/arm-linux-androideabi-4.9"
+  GCC_32_BRANCH : "master"
 
   DEFCONFIG_SOURCE: ""
   DEFCONFIG_NAME : "floral_defconfig"
