@@ -19,10 +19,10 @@ env:
   CLANG_BRANCH : ""
 
   GCC_GNU : false
-  GCC_64_SOURCE : ""
-  GCC_64_BRANCH : ""
-  GCC_32_SOURCE : ""
-  GCC_32_BRANCH : ""
+  GCC_64_SOURCE : "https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9.git"
+  GCC_64_BRANCH : "android-msm-coral-4.14-android13"
+  GCC_32_SOURCE : "https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9.git"
+  GCC_32_BRANCH : "android-msm-coral-4.14-android13"
 
   DEFCONFIG_SOURCE: ""
   DEFCONFIG_NAME : "floral_defconfig"
