@@ -79,6 +79,22 @@ runs:
             fi
           fi
 
+          # KPM Detect
+          if [[ "${{ env.KPM_ENABLE }}" == "true" ]]; then
+            if grep -q "CONFIG_KALLSYMS_ALL=y" "out/.config"; then
+                sed -i 's/# CONFIG_KPM is not set/CONFIG_KPM=y/' out/.config
+                echo "[+] Enabled KPM."
+            else
+                echo "[-] Your didn't enabled KALLSYMS_ALL."
+            fi
+
+            if grep -q "CONFIG_KPM=y" "out/.config"; then
+                echo "[+] Detected KPM."
+            else
+                echo "[-] Could not detect KPM."
+            fi
+          fi
+
           if [[ "$BUILD_CLANG" == "true" ]]; then
             echo "======================"
             echo "=Execuate Clang Build="

@@ -7,6 +7,7 @@ patch_files=(
     fs/namespace.c
     fs/internal.h
     include/linux/uaccess.h
+    kernel/trace/trace_kprobe.c
     mm/maccess.c
     security/selinux/hooks.c
     security/selinux/selinuxfs.c
@@ -82,7 +83,7 @@ for i in "${patch_files[@]}"; do
     # include/ changes
     ## include/linux/uaccess.h
     include/linux/uaccess.h)
-        if grep -q "strncpy_from_user_nofault" "drivers/kernelsu/ksud.c" >/dev/null 2>&1; then
+        if grep -q "strncpy_from_user_nofault" "drivers/kernelsu/ksud.c" && [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 20 ] >/dev/null 2>&1; then
             sed -i 's/^extern long strncpy_from_unsafe_user/long strncpy_from_user_nofault/' include/linux/uaccess.h
 
             if grep -q "strncpy_from_user_nofault" "include/linux/uaccess.h"; then
@@ -101,9 +102,8 @@ for i in "${patch_files[@]}"; do
     # mm/ changes
     ## mm/maccess.c
     mm/maccess.c)
-        if grep -q "strncpy_from_user_nofault" "drivers/kernelsu/ksud.c" >/dev/null 2>&1; then
-            sed -i 's/\* strncpy_from_unsafe_user: - Copy a NUL terminated string from unsafe user/\* strncpy_from_user_nofault: - Copy a NUL terminated string from unsafe user/' mm/maccess.c
-            sed -i 's/long strncpy_from_unsafe_user(char \*dst, const void __user \*unsafe_addr,/long strncpy_from_user_nofault(char *dst, const void __user *unsafe_addr,/' mm/maccess.c
+        if grep -q "strncpy_from_user_nofault" "drivers/kernelsu/ksud.c" && [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 20 ] >/dev/null 2>&1; then
+            sed -i 's/strncpy_from_unsafe_user/strncpy_from_user_nofault/g' mm/maccess.c
 
             if grep -q "strncpy_from_user_nofault" "mm/maccess.c"; then
                 echo "[+] mm/maccess.c Patched!"
@@ -118,7 +118,7 @@ for i in "${patch_files[@]}"; do
         echo "======================================"
         ;;
 
-    # security/
+    # security/ changes
     ## selinux/hooks.c
     security/selinux/hooks.c)
         if [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 20 ] && grep -q "selinux_inode" "drivers/kernelsu/supercalls.c" >/dev/null 2>&1; then

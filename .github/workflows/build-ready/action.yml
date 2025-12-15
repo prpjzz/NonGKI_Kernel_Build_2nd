@@ -9,7 +9,7 @@ runs:
           cd $GITHUB_WORKSPACE
           git clone --recursive "${{ env.KERNEL_SOURCE }}" -b "${{ env.KERNEL_BRANCH }}" device_kernel --depth=1
 
-          # Get KernelSU Version and Kernel Version
+          # Get Kernel Version
 
           KERNEL_VERSION=$(head -n 3 $GITHUB_WORKSPACE/device_kernel/Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')
           echo "KERNEL_VERSION=$(head -n 3 device_kernel/Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')" >> $GITHUB_ENV
@@ -124,9 +124,10 @@ runs:
                 KERNELSU_NAME="KernelSU-Next"
                 KERNELSU_ORIGIN_BRANCH="next"
                 if [[ "${{ env.SUSFS_ENABLE }}" == "true" ]]; then
-                    KERNELSU_BRANCH="next-susfs-a14-6.1-dev"
+                    echo "${{ env.KERNELSU_AUTO_FORK }} doesn't support SuSFS! "
+                    false
                 else
-                    KERNELSU_BRANCH="next"
+                    KERNELSU_BRANCH="legacy"
                 fi
             elif [[ "${{ env.KERNELSU_AUTO_FORK }}" == "wild" ]]; then
                 KERNELSU_AUTHOR="WildKernels"
@@ -298,46 +299,15 @@ runs:
           # Neccssary
           echo "CONFIG_KSU=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
           echo "# CONFIG_KPROBES is not set" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_HAVE_SYSCALL_TRACEPOINTS=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
 
           # Fork
           if [[ "${{ env.KERNELSU_SOURCE }}" == *rsuntk* ]] || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "sukisu" ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "rsuntk" ]]; then
             if [[ ${{ env.SUSFS_ENABLE }} == "true" ]] && [[ ${{ env.SUSFS_UPDATE }} == "true" ]]; then
                 echo "CONFIG_KSU_MANUAL_HOOK=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+                echo "CONFIG_KSU_NONE_HOOK=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
             else
                 echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-            fi
-          fi
-
-          if [[ "${{ env.KERNELSU_SOURCE }}" == *next* ]] || [[ "${{ env.KERNELSU_SOURCE }}" == *wild* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "wild" ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "next" ]]; then
-
-            if grep -q "CONFIG_OVERLAY_FS" "./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}"; then
-                echo "Detected overlayfs, skipped."
-            else
-                echo "==============================================================Warning=============================================================="
-                echo "=                                 Your device defconfig does not have overlayfs enabled by default                                ="
-                echo "=                                                     it will be stopped next                                                     ="
-                echo "=                                  This will most likely cause your device to generate bootloop !                                 ="
-                echo "=It is therefore recommended that you replace the KernelSU Fork with a KernelSU Fork that does not require the Overlay FS feature.="
-                echo "=                                                                                                                                 ="
-                echo "=                                      KernelSU Fork currently known to require Overlay FS :                                      ="
-                echo "=                                           KernelSU Next, Wild KSU, KernelSU Official.                                           ="
-                echo "==================================================================================================================================="
-                echo "=                                    If you definitely need to bring Overlay FS to the device,                                    ="
-                echo "=                                then you need to place the following code in Extra Kernel Options                                ="
-                echo "=                                                                                                                                 ="
-                echo '=                  echo "CONFIG_OVERLAY_FS=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}                  ='
-                echo "=                                                                                                                                 ="
-                echo "=             ,and just remove the false code from the corresponding area in .github/workflows/build-ready/action.yml             ="
-                echo "==================================================================================================================================="
-                false # Remove it to force build without Overlay fs
-            fi
-
-            echo "CONFIG_KSU_KPROBES_HOOK=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-
-            if [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 2 ]; then
-                echo "CONFIG_KSU_LSM_SECURITY_HOOKS=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-            else
-                echo "CONFIG_KSU_LSM_SECURITY_HOOKS=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
             fi
           fi
 
@@ -358,8 +328,6 @@ runs:
             fi
 
             if [[ "${{ env.KPM_ENABLE }}" == "true" ]]; then
-                echo "CONFIG_DEBUG_KERNEL=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-                echo "CONFIG_KALLSYMS=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
                 echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
             fi
 

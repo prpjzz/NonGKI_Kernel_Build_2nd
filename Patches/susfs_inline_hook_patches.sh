@@ -50,7 +50,7 @@ for i in "${patch_files[@]}"; do
         if grep -q "__do_execve_file" "fs/exec.c"; then
             sed -i '/static int __do_execve_file(int fd, struct filename \*filename,/i #ifdef CONFIG_KSU_SUSFS\nextern bool ksu_execveat_hook __read_mostly;\nextern bool susfs_is_boot_completed_triggered __read_mostly;\nextern bool __ksu_is_allow_uid_for_current(uid_t uid);\nextern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,\n\t\t\tvoid *envp, int *flags);\nextern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv,\n\t\t\t\tvoid *envp, int *flags);\n#endif' fs/exec.c
         else
-            sed -i '/^static int do_execveat_common(int fd, struct filename \*filename,/i\#ifdef CONFIG_KSU\nextern bool ksu_execveat_hook __read_mostly;\nextern bool susfs_is_boot_completed_triggered __read_mostly;\nextern bool __ksu_is_allow_uid_for_current(uid_t uid);\nextern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,\n\t\t\tvoid *envp, int *flags);\nextern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr,\n\t\t\t\t void *argv, void *envp, int *flags);\n#endif\n' fs/exec.c
+            sed -i '/^static int do_execveat_common(int fd, struct filename \*filename,/i\#ifdef CONFIG_KSU_SUSFS\nextern bool ksu_execveat_hook __read_mostly;\nextern bool susfs_is_boot_completed_triggered __read_mostly;\nextern bool __ksu_is_allow_uid_for_current(uid_t uid);\nextern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,\n\t\t\tvoid *envp, int *flags);\nextern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr,\n\t\t\t\t void *argv, void *envp, int *flags);\n#endif\n' fs/exec.c
         fi
         sed -i '/return PTR_ERR(filename);/a\#ifdef CONFIG_KSU_SUSFS\n\tif (likely(susfs_is_current_proc_umounted())) {\n\t\tgoto orig_flow;\n\t}\n\tif (unlikely(ksu_execveat_hook || !susfs_is_boot_completed_triggered)) {\n\t\tksu_handle_execveat(\&fd, \&filename, \&argv, \&envp, \&flags);\n\t} else if ((__ksu_is_allow_uid_for_current(current_uid().val))) {\n\t\tksu_handle_execveat_sucompat(\&fd, \&filename, \&argv, \&envp, \&flags);\n\t}\norig_flow:\n#endif' fs/exec.c
 
@@ -69,9 +69,9 @@ for i in "${patch_files[@]}"; do
         if grep -q "do_faccessat" "fs/open.c" >/dev/null 2>&1; then
             sed -i '/long do_faccessat(int dfd, const char __user \*filename, int mode)/i #ifdef CONFIG_KSU_SUSFS\nextern bool __ksu_is_allow_uid_for_current(uid_t uid);\nextern int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode,\n\t\t\tint *flags);\n#endif' fs/open.c
         else
-            sed -i '/SYSCALL_DEFINE3(faccessat/i #ifdef CONFIG_KSU\nextern bool __ksu_is_allow_uid_for_current(uid_t uid);\nextern int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode,\n             int *flags);\n#endif' fs/open.c
+            sed -i '/SYSCALL_DEFINE3(faccessat/i #ifdef CONFIG_KSU_SUSFS\nextern bool __ksu_is_allow_uid_for_current(uid_t uid);\nextern int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode,\n             int *flags);\n#endif' fs/open.c
         fi
-        sed -i '/if (mode & ~S_IRWXO)/i #ifdef CONFIG_KSU\n    if (likely(susfs_is_current_proc_umounted())) {\n        goto orig_flow;\n    }\n\n    if (unlikely(__ksu_is_allow_uid_for_current(current_uid().val))) {\n        ksu_handle_faccessat(&dfd, &filename, &mode, NULL);\n    }\n\norig_flow:\n#endif' fs/open.c
+        sed -i '/if (mode & ~S_IRWXO)/i #ifdef CONFIG_KSU_SUSFS\n    if (likely(susfs_is_current_proc_umounted())) {\n        goto orig_flow;\n    }\n\n    if (unlikely(__ksu_is_allow_uid_for_current(current_uid().val))) {\n        ksu_handle_faccessat(&dfd, &filename, &mode, NULL);\n    }\n\norig_flow:\n#endif' fs/open.c
 
         if grep -q "ksu_handle_faccessat" "fs/open.c"; then
             echo "[+] fs/open.c Patched!"
@@ -103,8 +103,8 @@ for i in "${patch_files[@]}"; do
     ## stat.c
     fs/stat.c)
         sed -i '/#include <asm\/uaccess.h>/i #ifdef CONFIG_KSU_SUSFS\n#include <linux\/susfs_def.h>\n#endif' fs/stat.c
-        sed -i '/int vfs_statx(int dfd, const char __user \*filename, int flags,/i #ifdef CONFIG_KSU\nextern bool __ksu_is_allow_uid_for_current(uid_t uid);\nextern int ksu_handle_stat(int *dfd, const char __user **filename_user, int *flags);\n#endif' fs/stat.c
-        sed -i '/unsigned int lookup_flags = LOOKUP_FOLLOW | LOOKUP_AUTOMOUNT;/a #ifdef CONFIG_KSU\n\tif (likely(susfs_is_current_proc_umounted())) {\n\t\tgoto orig_flow;\n\t}\n\n\tif (unlikely(__ksu_is_allow_uid_for_current(current_uid().val))) {\n\t\tksu_handle_stat(&dfd, &filename, &flags);\n\t}\norig_flow:\n#endif' fs/stat.c
+        sed -i '/int vfs_statx(int dfd, const char __user \*filename, int flags,/i #ifdef CONFIG_KSU_SUSFS\nextern bool __ksu_is_allow_uid_for_current(uid_t uid);\nextern int ksu_handle_stat(int *dfd, const char __user **filename_user, int *flags);\n#endif' fs/stat.c
+        sed -i '/unsigned int lookup_flags = LOOKUP_FOLLOW | LOOKUP_AUTOMOUNT;/a #ifdef CONFIG_KSU_SUSFS\n\tif (likely(susfs_is_current_proc_umounted())) {\n\t\tgoto orig_flow;\n\t}\n\n\tif (unlikely(__ksu_is_allow_uid_for_current(current_uid().val))) {\n\t\tksu_handle_stat(&dfd, &filename, &flags);\n\t}\norig_flow:\n#endif' fs/stat.c
 
         if grep -q "ksu_handle_stat" "fs/stat.c"; then
             echo "[+] fs/stat.c Patched!"
@@ -140,7 +140,7 @@ for i in "${patch_files[@]}"; do
     ## devpts/inode.c
     fs/devpts/inode.c)
         sed -i '/#include <linux\/seq_file.h>/a\#ifdef CONFIG_KSU_SUSFS\n#include <linux/susfs_def.h>\n#endif' fs/devpts/inode.c
-        sed -i '/^struct dentry \*devpts_pty_new(struct pts_fs_info \*fsi, int index, void \*priv)/i\#ifdef CONFIG_KSU\nextern int ksu_handle_devpts(struct inode*);\n#endif\n' fs/devpts/inode.c
+        sed -i '/^struct dentry \*devpts_pty_new(struct pts_fs_info \*fsi, int index, void \*priv)/i\#ifdef CONFIG_KSU_SUSFS\nextern int ksu_handle_devpts(struct inode*);\n#endif\n' fs/devpts/inode.c
         sed -i '/if (dentry->d_sb->s_magic != DEVPTS_SUPER_MAGIC)/i\#ifdef CONFIG_KSU_SUSFS\n\tif (likely(susfs_is_current_proc_umounted())) {\n\t\tgoto orig_flow;\n\t}\n\tksu_handle_devpts(dentry->d_inode);\norig_flow:\n#endif\n' fs/devpts/inode.c
 
         if grep -q "ksu_handle_devpts" "fs/devpts/inode.c"; then
@@ -157,7 +157,7 @@ for i in "${patch_files[@]}"; do
     ## input/input.c
     drivers/input/input.c)
         sed -i '/^static void input_handle_event(struct input_dev \*dev,/i\#ifdef CONFIG_KSU\nextern bool ksu_input_hook __read_mostly;\nextern int ksu_handle_input_handle_event(unsigned int *type, unsigned int *code, int *value);\n#endif\n' drivers/input/input.c
-        sed -i '/int disposition = input_get_disposition(dev, type, code, \&value);/a\ \n#ifdef CONFIG_KSU\n\tif (unlikely(ksu_input_hook))\n\t\tksu_handle_input_handle_event(\&type, \&code, \&value);\n#endif' drivers/input/input.c
+        sed -i '/if (disposition != INPUT_IGNORE_EVENT && type != EV_SYN)/i\#ifdef CONFIG_KSU_SUSFS\n\tif (unlikely(ksu_input_hook))\n\t\tksu_handle_input_handle_event(\&type, \&code, \&value);\n#endif\n' drivers/input/input.c
 
         if grep -q "ksu_handle_input_handle_event" "drivers/input/input.c"; then
             echo "[+] drivers/input/input.c Patched!"
@@ -247,19 +247,24 @@ for i in "${patch_files[@]}"; do
         ;;
     ## sys.c
     kernel/sys.c)
-        if grep -q "__sys_setresuid" "kernel/sys.c" >/dev/null 2>&1; then
-            sed -i '/^SYSCALL_DEFINE3(setresuid, uid_t, ruid, uid_t, euid, uid_t, suid)/i\#ifdef CONFIG_KSU\nextern int ksu_handle_setresuid(uid_t ruid, uid_t euid, uid_t suid);\n#endif\n' kernel/sys.c
-            sed -i '/return __sys_setresuid(ruid, euid, suid);/i\#ifdef CONFIG_KSU\n\tif (ksu_handle_setresuid(ruid, euid, suid)) {\n\t\tpr_info("Something wrong with ksu_handle_setresuid()\/n");\n\t}\n#endif' kernel/sys.c
-        else
-            sed -i '/^SYSCALL_DEFINE3(setresuid, uid_t, ruid, uid_t, euid, uid_t, suid)/i\#ifdef CONFIG_KSU\nextern int ksu_handle_setresuid(uid_t ruid, uid_t euid, uid_t suid);\n#endif\n' kernel/sys.c
-            sed -i '0,/\tif ((ruid != (uid_t) -1) && !uid_valid(kruid))/b; /\tif ((ruid != (uid_t) -1) && !uid_valid(kruid))/i\#ifdef CONFIG_KSU_SUSFS\n\tif (ksu_handle_setresuid(ruid, euid, suid)) {\n\t\tpr_info("Something wrong with ksu_handle_setresuid()\/n");\n\t}\n#endif' kernel/sys.c
-        fi
+        if grep -q "ksu_handle_setresuid" "drivers/kernelsu/setuid_hook.c" >/dev/null 2>&1; then
 
-        if grep -q "ksu_handle_setresuid" "kernel/sys.c"; then
-            echo "[+] kernel/sys.c Patched!"
-            echo "[+] Count: $(grep -c "ksu_handle_setresuid" "kernel/sys.c")"
+            if grep -q "__sys_setresuid" "kernel/sys.c" >/dev/null 2>&1; then
+                sed -i '/^SYSCALL_DEFINE3(setresuid, uid_t, ruid, uid_t, euid, uid_t, suid)/i\#ifdef CONFIG_KSU\nextern int ksu_handle_setresuid(uid_t ruid, uid_t euid, uid_t suid);\n#endif\n' kernel/sys.c
+                sed -i '/return __sys_setresuid(ruid, euid, suid);/i\#ifdef CONFIG_KSU_SUSFS\n\tif (ksu_handle_setresuid(ruid, euid, suid)) {\n\t\tpr_info("Something wrong with ksu_handle_setresuid()\\\\n");\n\t}\n#endif\n' kernel/sys.c
+            else
+                sed -i '/^SYSCALL_DEFINE3(setresuid, uid_t, ruid, uid_t, euid, uid_t, suid)/i\#ifdef CONFIG_KSU\nextern int ksu_handle_setresuid(uid_t ruid, uid_t euid, uid_t suid);\n#endif\n' kernel/sys.c
+                sed -i '0,/\tif ((ruid != (uid_t) -1) && !uid_valid(kruid))/b; /\tif ((ruid != (uid_t) -1) && !uid_valid(kruid))/i\#ifdef CONFIG_KSU_SUSFS\n\tif (ksu_handle_setresuid(ruid, euid, suid)) {\n\t\tpr_info("Something wrong with ksu_handle_setresuid()\\\\n");\n\t}\n#endif' kernel/sys.c
+            fi
+
+            if grep -q "ksu_handle_setresuid" "kernel/sys.c"; then
+                echo "[+] kernel/sys.c Patched!"
+                echo "[+] Count: $(grep -c "ksu_handle_setresuid" "kernel/sys.c")"
+            else
+                echo "[-] kernel/sys.c patch failed for unknown reasons, please provide feedback in time."
+            fi
         else
-            echo "[-] kernel/sys.c patch failed for unknown reasons, please provide feedback in time."
+            echo "[-] KernelSU have no ksu_handle_setresuid, Skipped."
         fi
 
         echo "======================================"

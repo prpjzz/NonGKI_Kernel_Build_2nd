@@ -14,10 +14,10 @@ SUSFS_REMAIN_CLEAN_FILES=("fs/susfs.c" "include/linux/susfs.h" "include/linux/su
 for file in "${KSU_CLEAN_FILES[@]}"; do
     sed -i '/#ifdef CONFIG_KSU/,/#endif/d' "${file}"
 
-    if grep "CONFIG_KSU" "${file}"; then
-        echo "[-] Could not remove hook from ${file}."
+    if grep -q "CONFIG_KSU" "${file}"; then
+        echo "[-] Could not remove KernelSU hook from ${file}."
     else
-        echo "[+] Cleaned Hook for ${file}."
+        echo "[+] Cleaned KernelSU Hook for ${file}."
     fi
 done
 
@@ -26,10 +26,10 @@ done
 for file in "${SUSFS_CLEAN_FILES[@]}"; do
     sed -i '/#ifdef CONFIG_KSU_SUSFS/,/#endif/d' "${file}"
 
-    if grep "CONFIG_KSU_SUSFS/" "${file}"; then
-        echo "[-] Could not remove hook from ${file}."
+    if grep -q "CONFIG_KSU_SUSFS/" "${file}"; then
+        echo "[-] Could not remove SuSFS hook from ${file}."
     else
-        echo "[+] Cleaned Hook for ${file}."
+        echo "[+] Cleaned SuSFS Hook for ${file}."
     fi
 done
 
