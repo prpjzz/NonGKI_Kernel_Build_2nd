@@ -12,8 +12,8 @@ env:
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
   EXTRA_CMDS : "LD=ld.lld"
 
-  KERNEL_SOURCE : "https://github.com/LineageOS/android_kernel_google_msm-4.14.git"
-  KERNEL_BRANCH : "lineage-23.0"
+  KERNEL_SOURCE : "https://github.com/freak07/floral.git"
+  KERNEL_BRANCH : "master_T_floral_caf_27"
 
   CLANG_SOURCE : "https://github.com/TeraaBytee/google-clang.git"
   CLANG_BRANCH : "11.0.2"
@@ -25,7 +25,7 @@ env:
   GCC_32_BRANCH : "master"
 
   DEFCONFIG_SOURCE: ""
-  DEFCONFIG_NAME : "floral_defconfig"
+  DEFCONFIG_NAME : "kirisakura_defconfig"
   DEFCONFIG_ORIGIN_IMAGE: ""
   DEFCONFIG_FROM_BOOT: false
 
