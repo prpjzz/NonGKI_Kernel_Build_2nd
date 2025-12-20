@@ -122,7 +122,7 @@ runs:
             elif [[ "${{ env.KERNELSU_AUTO_FORK }}" == "next" ]]; then
                 KERNELSU_AUTHOR="KernelSU-Next"
                 KERNELSU_NAME="KernelSU-Next"
-                KERNELSU_ORIGIN_BRANCH="next"
+                KERNELSU_ORIGIN_BRANCH="legacy"
                 if [[ "${{ env.SUSFS_ENABLE }}" == "true" ]]; then
                     echo "${{ env.KERNELSU_AUTO_FORK }} doesn't support SuSFS! "
                     false
@@ -203,50 +203,8 @@ runs:
 
           # Core
           if [[ ${{ env.KERNELSU_AUTO_GET }} == "true" ]]; then
-
-            if [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 10 ] && [[ "${{ env.BUILD_DEBUGGER }}" == "false" ]]; then
-                if [[ "${{ env.KERNELSU_AUTO_FORK }}" == "sukisu" ]]; then
-                    if grep -q "struct list_head task_alloc" "include/linux/lsm_hooks.h"; then
-                        echo "Your device supported the Manual SU function provided by SukiSU-Ultra!"
-                        echo "CONFIG_KSU_MANUAL_SU=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-                    else
-                        echo ">>>Warning!<<<"
-                        echo "Your device cannot support the Manual SU function provided by SukiSU-Ultra!"
-                        echo "You can still compile it, but if you want to get Manual SU functionality, you need to port the task_alloc related functionality."
-                        echo ">>>>>>><<<<<<<"
-                        echo "CONFIG_KSU_MANUAL_SU=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-                    fi
-                fi
-            elif [[ "${{ env.BUILD_DEBUGGER }}" == "true" ]]; then
-                echo ">>>Warning!<<<"
-                echo "Kernel defects are also not blocked because the debugger feature is enabled."
-                echo ">>>>>>><<<<<<<"
-                echo "CONFIG_KSU_MANUAL_SU=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-            fi
-
             KERNELSU_AUTO
           else
-
-            if [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 10 ] && [[ "${{ env.BUILD_DEBUGGER }}" == "false" ]]; then
-                if [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]]; then
-                    if grep -q "struct list_head task_alloc" "include/linux/lsm_hooks.h"; then
-                        echo "Your device supported the Manual SU function provided by SukiSU-Ultra!"
-                        echo "CONFIG_KSU_MANUAL_SU=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-                    else
-                        echo ">>>Warning!<<<"
-                        echo "Your device cannot support the Manual SU function provided by SukiSU-Ultra!"
-                        echo "You can still compile it, but if you want to get Manual SU functionality, you need to port the task_alloc related functionality."
-                        echo ">>>>>>><<<<<<<"
-                        echo "CONFIG_KSU_MANUAL_SU=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-                    fi
-                fi
-            elif [[ "${{ env.BUILD_DEBUGGER }}" == "true" ]]; then
-                echo ">>>Warning!<<<"
-                echo "Kernel defects are also not blocked because the debugger feature is enabled."
-                echo ">>>>>>><<<<<<<"
-                echo "CONFIG_KSU_MANUAL_SU=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-            fi
-
             KERNELSU_MANUAL
           fi
           echo "KERNELSU_METHOD=${{ env.KERNELSU_METHOD }}" >> $GITHUB_ENV
@@ -268,26 +226,36 @@ runs:
 
           if [[ -d "${{ env.KERNELSU_NAME }}/kernel/kpm" ]]; then
             if [ -f "include/linux/set_memory.h" ]; then
+
                 echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
                 ${{ env.CURLX }} "${{ env.KPM_PATCH_SOURCE }}" patch
                 chmod a+x patch
-                echo "Set KPM successfully !"
+                echo "[+]Set KPM successfully !"
+            elif [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 10 ]; then
+
+                cp /tmp/Patches/Patch/set_memory_to_49_and_low.patch ./
+                patch -p1 < set_memory_to_49_and_low.patch || true
+                echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+                ${{ env.CURLX }} "${{ env.KPM_PATCH_SOURCE }}" patch
+                chmod a+x patch
+                echo "[+]Patch set_memory successfully !"
+                echo "[-]If have patch error (.rej), manual fixed it."
             else
-                if [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 10 ]; then
-                    cp /tmp/Patches/Patch/set_memory_to_49_and_low.patch ./
-                    patch -p1 < set_memory_to_49_and_low.patch || true
-                    echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-                    ${{ env.CURLX }} "${{ env.KPM_PATCH_SOURCE }}" patch
-                    chmod a+x patch
-                    echo "Patch set_memory successfully !"
-                    echo "If have patch error (.rej), manual fixed it."
-                else
-                    echo "Your kernel cannot support KPM function."
-                    false
-                fi
+
+                echo "===================Error==================="
+                echo "=                                         ="
+                echo "=Your kernel cannot support KPM function. ="
+                echo "=                                         ="
+                echo "==========================================="
+                false
             fi
           else
-            echo "KernelSU cannot support KPM !"
+
+            echo "=============Error============="
+            echo "=                             ="
+            echo "=KernelSU cannot support KPM !="
+            echo "=                             ="
+            echo "==============================="
             false
           fi
 
@@ -302,11 +270,9 @@ runs:
           echo "CONFIG_HAVE_SYSCALL_TRACEPOINTS=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
 
           # Fork
-          if [[ "${{ env.KERNELSU_SOURCE }}" == *rsuntk* ]] || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "sukisu" ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "rsuntk" ]]; then
-            if [[ ${{ env.SUSFS_ENABLE }} == "true" ]] && [[ ${{ env.SUSFS_UPDATE }} == "true" ]]; then
-                echo "CONFIG_KSU_MANUAL_HOOK=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-                echo "CONFIG_KSU_NONE_HOOK=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-            else
+          if [[ "${{ env.KERNELSU_SOURCE }}" == *rsuntk* ]] || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] || [[ "${{ env.KERNELSU_SOURCE }}" == *next* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "sukisu" ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "rsuntk" ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "next" ]]; then
+            if [[ ${{ env.SUSFS_ENABLE }} != "true" ]]; then
+
                 echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
             fi
           fi
@@ -322,20 +288,17 @@ runs:
           fi
 
           if [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] || [[ "${{ env.KERNELSU_AUTO_FORK }}" == "sukisu" ]]; then
-            if [[ "${{ env.HOOK_METHOD }}" == "tracepoint" ]]; then
-                echo "CONFIG_KSU_TRACEPOINT_HOOK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-                echo "Enabled tracepoint."
-            fi
+            echo "CONFIG_KSU_MANUAL_SU=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
 
             if [[ "${{ env.KPM_ENABLE }}" == "true" ]]; then
                 echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
             fi
 
-            if [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 5 ]; then
-                echo "CONFIG_KSU_THRONE_TRACKER_LEGACY=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
-            fi
-
             if [[ "${{ env.SUSFS_ENABLE }}" != true ]]; then
                 echo "CONFIG_KSU_SUSFS=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+
+            elif [[ "${{ env.SUSFS_ENABLE }}" == true ]]; then
+                echo "CONFIG_KSU_MANUAL_HOOK=n" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+                echo "CONFIG_KSU_NONE_HOOK=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
             fi
           fi
