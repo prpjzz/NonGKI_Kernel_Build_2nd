@@ -9,7 +9,7 @@ env:
   DEVICE_NAME : "pixel_4_xl"
   DEVICE_CODENAME : "coral"
 
-  CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
+  CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu- KCFLAGS=-enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang"
   EXTRA_CMDS : "LD=ld.lld AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip"
 
   KERNEL_SOURCE : "https://github.com/freak07/floral.git"
