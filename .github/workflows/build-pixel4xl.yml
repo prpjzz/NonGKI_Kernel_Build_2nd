@@ -33,7 +33,7 @@ env:
   KERNELSU_BRANCH : ""
 
   KERNELSU_AUTO_GET : "true"
-  KERNELSU_AUTO_FORK : "rsuntk" # magic, rsuntk , next and sukisu
+  KERNELSU_AUTO_FORK : "sukisu" # magic, rsuntk , next and sukisu
 
   SUSFS_ENABLE : false
   SUSFS_FIXED : true
@@ -68,7 +68,7 @@ env:
 
   REKERNEL_ENABLE: "false" # if u need Re:Kernel.
 
-  HOOK_METHOD: "manual" # Manual hook method ->  syscall and tracepoint.
+  HOOK_METHOD: "tracepoint" # Manual hook method ->  syscall and tracepoint.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
 
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
