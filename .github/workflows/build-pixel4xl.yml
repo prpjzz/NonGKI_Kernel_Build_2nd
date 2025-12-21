@@ -15,8 +15,8 @@ env:
   KERNEL_SOURCE : "https://github.com/freak07/floral.git"
   KERNEL_BRANCH : "master_T_floral_caf_27"
 
-  CLANG_SOURCE : "https://github.com/TeraaBytee/google-clang.git"
-  CLANG_BRANCH : "11.0.2"
+  CLANG_SOURCE : "https://github.com/erabye/shattered-clang/releases/download/shattered-Clang-15.0.7/shattered-Clang-15.0.7.tar.gz"
+  CLANG_BRANCH : ""
 
   GCC_GNU : false
   GCC_64_SOURCE : "https://github.com/TeraaBytee/aarch64-linux-android-4.9.git"
