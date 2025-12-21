@@ -68,7 +68,7 @@ env:
 
   REKERNEL_ENABLE: "false" # if u need Re:Kernel.
 
-  HOOK_METHOD: "syscall" # Manual hook method ->  syscall and tracepoint.
+  HOOK_METHOD: "manual" # Manual hook method ->  syscall and tracepoint.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
 
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
@@ -117,7 +117,7 @@ jobs:
       - name: 🪛 Extra Kernel Options
         run: |
 
-          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/clang-custom/clang-r475365b/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/clang-custom/lib64:$LD_LIBRARY_PATH
           
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
