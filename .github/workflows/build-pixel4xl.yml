@@ -116,6 +116,8 @@ jobs:
 
       - name: 🪛 Extra Kernel Options
         run: |
+
+          sed -i '/identify_ramdisk_image/,/^{/,/^}/s/unsigned char \*buf;/char *buf;/' ./init/do_mounts_rd.c
           export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/clang-custom/clang-r475365b/lib64:$LD_LIBRARY_PATH
           
           # Only ${{ env.DEVICE_NAME }} use it.
