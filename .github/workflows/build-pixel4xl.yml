@@ -18,7 +18,7 @@ env:
   CLANG_SOURCE : "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
   CLANG_BRANCH : ""
 
-  GCC_GNU : false
+  GCC_GNU : true
   GCC_64_SOURCE : ""
   GCC_64_BRANCH : ""
   GCC_32_SOURCE : ""
