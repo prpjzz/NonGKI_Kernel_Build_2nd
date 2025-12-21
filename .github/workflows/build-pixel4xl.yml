@@ -12,8 +12,8 @@ env:
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu- KCFLAGS=-enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang"
   EXTRA_CMDS : "LD=ld.lld AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip"
 
-  KERNEL_SOURCE : "https://github.com/freak07/floral.git"
-  KERNEL_BRANCH : "master_T_floral_caf_27"
+  KERNEL_SOURCE : "https://github.com/Mr-Metatron/FLORAL.git"
+  KERNEL_BRANCH : "lxc_docker_T_floral_caf_27"
 
   CLANG_SOURCE : "https://github.com/LineageOS/android_prebuilts_clang_kernel_linux-x86_clang-r416183b.git"
   CLANG_BRANCH : "lineage-20.0"
@@ -57,7 +57,7 @@ env:
 
   PACK_METHOD: "Anykernel3" # Anykernel3 need SOURCE and BRANCH, MKBOOTIMG needn't it.
 
-  KERNELSU_METHOD: "manual" # shell, manual and only.
+  KERNELSU_METHOD: "shell" # shell, manual and only.
 
   PATCHES_SOURCE: "JackA1ltman/NonGKI_Kernel_Patches" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
   PATCHES_BRANCH: "mi_kernel" # [your_branch] -> main
@@ -68,7 +68,7 @@ env:
 
   REKERNEL_ENABLE: "false" # if u need Re:Kernel.
 
-  HOOK_METHOD: "tracepoint" # Manual hook method ->  syscall and tracepoint.
+  HOOK_METHOD: "syscall" # Manual hook method ->  syscall and tracepoint.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
 
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
@@ -121,6 +121,12 @@ jobs:
           
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
+
+          # Some checking for lxc
+          wget https://raw.githubusercontent.com/moby/moby/master/contrib/check-config.sh
+          chmod +x check-config.sh
+          make CC=clang AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip O=out docker_defconfig
+          check-config.sh out/.config
 
           echo "CONFIG_LOCALVERSION_AUTO=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # Add additional tmpfs config setting
