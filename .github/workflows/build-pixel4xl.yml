@@ -15,8 +15,8 @@ env:
   KERNEL_SOURCE : "https://github.com/freak07/floral.git"
   KERNEL_BRANCH : "master_T_floral_caf_27"
 
-  CLANG_SOURCE : "https://codeberg.org/TelegramAt25/platform_prebuilts_clang_host_linux-x86_clang-r450784d.git"
-  CLANG_BRANCH : "android13-release"
+  CLANG_SOURCE : "https://github.com/LineageOS/android_prebuilts_clang_kernel_linux-x86_clang-r416183b.git"
+  CLANG_BRANCH : "lineage-20.0"
 
   GCC_GNU : false
   GCC_64_SOURCE : "https://github.com/TeraaBytee/aarch64-linux-android-4.9.git"
