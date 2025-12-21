@@ -10,19 +10,19 @@ env:
   DEVICE_CODENAME : "coral"
 
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
-  EXTRA_CMDS : "LD=ld.lld LLVM=1 AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip"
+  EXTRA_CMDS : "LD=ld.lld AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip"
 
   KERNEL_SOURCE : "https://github.com/freak07/floral.git"
   KERNEL_BRANCH : "master_T_floral_caf_27"
 
-  CLANG_SOURCE : "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
-  CLANG_BRANCH : ""
+  CLANG_SOURCE : "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86.git"
+  CLANG_BRANCH : "android14-release"
 
-  GCC_GNU : true
-  GCC_64_SOURCE : ""
-  GCC_64_BRANCH : ""
-  GCC_32_SOURCE : ""
-  GCC_32_BRANCH : ""
+  GCC_GNU : false
+  GCC_64_SOURCE : "https://github.com/TeraaBytee/aarch64-linux-android-4.9"
+  GCC_64_BRANCH : "master"
+  GCC_32_SOURCE : "https://github.com/TeraaBytee/arm-linux-androideabi-4.9"
+  GCC_32_BRANCH : "master"
 
   DEFCONFIG_SOURCE: ""
   DEFCONFIG_NAME : "kirisakura_defconfig"
