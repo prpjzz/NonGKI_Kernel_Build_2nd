@@ -10,7 +10,7 @@ env:
   DEVICE_CODENAME : "coral"
 
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
-  EXTRA_CMDS : "LD=ld.lld"
+  EXTRA_CMDS : "LD=ld.lld LLVM=1 AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip"
 
   KERNEL_SOURCE : "https://github.com/freak07/floral.git"
   KERNEL_BRANCH : "master_T_floral_caf_27"
@@ -44,8 +44,11 @@ env:
 
   BOOT_SOURCE : ""
 
-  NEED_DTBO : false
+  NEED_DTBO : true
   NEED_SAFE_DTBO : false
+  HAVE_NO_DTBO : true
+  HAVE_NO_DTBO_TOOL : false
+  
 
   ROM_TEXT : "based_aosp_a15"
 
