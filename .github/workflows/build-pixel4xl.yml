@@ -15,8 +15,8 @@ env:
   KERNEL_SOURCE : "https://github.com/freak07/floral.git"
   KERNEL_BRANCH : "master_T_floral_caf_27"
 
-  CLANG_SOURCE : "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86.git"
-  CLANG_BRANCH : "android14-release"
+  CLANG_SOURCE : "https://codeberg.org/TelegramAt25/platform_prebuilts_clang_host_linux-x86_clang-r450784d.git"
+  CLANG_BRANCH : "android13-release"
 
   GCC_GNU : false
   GCC_64_SOURCE : "https://github.com/TeraaBytee/aarch64-linux-android-4.9.git"
@@ -116,6 +116,8 @@ jobs:
 
       - name: 🪛 Extra Kernel Options
         run: |
+          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/clang-custom/clang-r475365b/lib64:$LD_LIBRARY_PATH
+          
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
 
