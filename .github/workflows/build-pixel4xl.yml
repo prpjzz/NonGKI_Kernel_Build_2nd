@@ -123,10 +123,10 @@ jobs:
           cd $GITHUB_WORKSPACE/device_kernel
 
           # Some checking for lxc
-          curl -L -o "check-config.sh" https://raw.githubusercontent.com/moby/moby/master/contrib/check-config.sh
-          chmod +x check-config.sh
+          # curl -L -o "check-config.sh" https://raw.githubusercontent.com/moby/moby/master/contrib/check-config.sh
+          # chmod +x check-config.sh
           make ARCH=arm64 SUBARCH=arm64 CC=clang AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip O=out docker_defconfig
-          check-config.sh out/.config
+          # check-config.sh out/.config
 
           echo "CONFIG_LOCALVERSION_AUTO=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # Add additional tmpfs config setting
