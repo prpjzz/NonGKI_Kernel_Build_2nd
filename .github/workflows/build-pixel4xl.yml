@@ -121,8 +121,6 @@ jobs:
           
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
-          sed -i '77s/unsigned char \*buf;/char *buf;/' ./init/do_mounts_rd.c
-
 
           echo "CONFIG_LOCALVERSION_AUTO=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # Add additional tmpfs config setting
