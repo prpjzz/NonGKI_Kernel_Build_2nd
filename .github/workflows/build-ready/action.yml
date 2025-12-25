@@ -134,11 +134,7 @@ runs:
                 KERNELSU_NAME="Wild_KSU"
                 KERNELSU_ORIGIN_BRANCH="wild"
                 if [[ "${{ env.SUSFS_ENABLE }}" == "true" ]]; then
-                    if [[ "${{ env.SUSFS_UPDATE }}" == "true" ]]; then
-                        KERNELSU_BRANCH="susfs"
-                    else
-                        KERNELSU_BRANCH="susfs-legacy"
-                    fi
+                    KERNELSU_BRANCH="susfs"
                 else
                     KERNELSU_BRANCH="wild"
                 fi
