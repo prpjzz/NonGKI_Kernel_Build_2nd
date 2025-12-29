@@ -10,9 +10,9 @@ env:
   DEVICE_CODENAME : "coral"
 
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu- KCFLAGS=-enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang"
-  EXTRA_CMDS : "LD=ld.lld AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip"
+  EXTRA_CMDS : "LD=ld.lld AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1"
 
-  KERNEL_SOURCE : "https://github.com/Mr-Metatron/FLORAL.git"
+  KERNEL_SOURCE : "https://github.com/freak07/FLORAL.git"
   KERNEL_BRANCH : "master_T_floral_caf_27"
 
   CLANG_SOURCE : "https://github.com/LineageOS/android_prebuilts_clang_kernel_linux-x86_clang-r416183b.git"
@@ -25,7 +25,7 @@ env:
   GCC_32_BRANCH : "master"
 
   DEFCONFIG_SOURCE: ""
-  DEFCONFIG_NAME : "docker_defconfig"
+  DEFCONFIG_NAME : "kirisakura_defconfig"
   DEFCONFIG_ORIGIN_IMAGE: ""
   DEFCONFIG_FROM_BOOT: false
 
@@ -35,10 +35,9 @@ env:
   KERNELSU_AUTO_GET : "true"
   KERNELSU_AUTO_FORK : "sukisu" # magic, rsuntk , next and sukisu
 
-  SUSFS_ENABLE : false
+  SUSFS_ENABLE : true
   SUSFS_FIXED : true
-  SUSFS_UPDATE : true
-
+  
   AK3_SOURCE : "https://github.com/SOVIET-ANDROID/AnyKernel3.git"
   AK3_BRANCH : "master"
 
@@ -63,8 +62,8 @@ env:
   PATCHES_BRANCH: "mi_kernel" # [your_branch] -> main
 
   SUSFS_FOLDER_FIXED: "k20p_aosp_sovietstar_a15" # Fill in your patch prefix directory here. Leave it blank if there isn't one. -> your_folder
-  SUSFS_155_FIXED: "susfs_155_fixed" # Fill in your patches here. If there are multiple patches, please separate them with a comma. Leave it blank if there isn't one. -> patch1,patch2 (Only v1.5.5 SuSFS)
-  SUSFS_LATEST_FIXED: "" # Fill in your patches here. If there are multiple patches, please separate them with a comma. Leave it blank if there isn't one. -> patch1,patch2
+ # SUSFS_155_FIXED: "susfs_155_fixed" # Fill in your patches here. If there are multiple patches, please separate them with a comma. Leave it blank if there isn't one. -> patch1,patch2 (Only v1.5.5 SuSFS)
+  SUSFS_PATCH_FIXED: "susfs_fixed" # Fill in your patches here. If there are multiple patches, please separate them with a comma. Leave it blank if there isn't one. -> patch1,patch2
 
   REKERNEL_ENABLE: "false" # if u need Re:Kernel.
 
@@ -125,7 +124,7 @@ jobs:
           # Some checking for lxc
           # curl -L -o "check-config.sh" https://raw.githubusercontent.com/moby/moby/master/contrib/check-config.sh
           # chmod +x check-config.sh
-          make ARCH=arm64 SUBARCH=arm64 CC=clang AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip O=out docker_defconfig
+          # make ARCH=arm64 SUBARCH=arm64 CC=clang AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip O=out docker_defconfig
           # check-config.sh out/.config
 
           echo "CONFIG_LOCALVERSION_AUTO=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
