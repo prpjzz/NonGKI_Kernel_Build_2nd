@@ -9,12 +9,12 @@ on:
 
 jobs:
   # OPPO
-  ## Oneplus
-  build-device-name-systemos-android-version:
-    name: "Device Name (SystemOS Android Version) (Kernel Name)"
+  ## Vsmart
+  build-vsmart-joy-3-based-aosp-a15:
+    name: "Vsmart Joy 3 (Based AOSP - A15)"
     strategy:
       fail-fast: true
-    uses: ./.github/workflows/build-sample.yml
+    uses: ./.github/workflows/build-joy3.yml
     secrets: inherit
 
   # Xiaomi
