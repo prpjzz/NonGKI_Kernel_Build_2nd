@@ -15,8 +15,8 @@ env:
   KERNEL_SOURCE : "https://github.com/freak07/FLORAL.git"
   KERNEL_BRANCH : "master_T_floral_caf_27"
 
-  CLANG_SOURCE : "https://github.com/LineageOS/android_prebuilts_clang_kernel_linux-x86_clang-r416183b.git"
-  CLANG_BRANCH : "lineage-20.0"
+  CLANG_SOURCE : "https://codeberg.org/TelegramAt25/platform_prebuilts_clang_host_linux-x86_clang-r450784d.git"
+  CLANG_BRANCH : "android13-release"
 
   GCC_GNU : false
   GCC_64_SOURCE : "https://github.com/TeraaBytee/aarch64-linux-android-4.9.git"
@@ -33,9 +33,9 @@ env:
   KERNELSU_BRANCH : ""
 
   KERNELSU_AUTO_GET : "true"
-  KERNELSU_AUTO_FORK : "sukisu" # magic, rsuntk , next and sukisu
+  KERNELSU_AUTO_FORK : "rsuntk" # magic, rsuntk , next and sukisu
 
-  SUSFS_ENABLE : true
+  SUSFS_ENABLE : false
   SUSFS_FIXED : true
   
   AK3_SOURCE : "https://github.com/SOVIET-ANDROID/AnyKernel3.git"
