@@ -47,7 +47,7 @@ jobs:
 
         | Device Name | Codename | Kernel | System | Android | Method | KernelSU | SuSFS | Re:Kernel | KPM | BBG | Hook |
         |----------|----------|----------|----------|----------|----------|----------|----------|----------|----------|----------|----------|
-        | Sample | sam | 4.19 | Custom OS | 15 | AnyKernel3 | KernelSU | ✅ | ❌ | ✅ | ❌ | Normal |
+        | Vsmart Joy 3 | casuarina | 4.9 | Based-AOSP | 15 | AnyKernel3 | SukiSU | ✅ | ❎ | ❎ | ❎ | Inline |
 
         - Specific device information: [Supported List](Supported_list.md).
         - The KernelSU version is for reference only. It is normal for the KernelSU version embedded in SUSFS to be lower.
