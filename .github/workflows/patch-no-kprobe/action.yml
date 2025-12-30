@@ -62,6 +62,16 @@ runs:
                 cp /tmp/Patches/backport_patches.sh ./
 
                 bash backport_patches.sh
+
+                if [[ "${{ env.BASEBAND_GUARD_ENABLE }}" != "true" ]]; then
+                    cp /tmp/Patches/backport_selinux_patches.sh ./
+
+                    bash backport_selinux_patches.sh
+                    echo "[+] Patched SELinux."
+                else
+                    echo "[-] Skipped SELinux Patch."
+                fi
+
                 if grep -q "kernel_read" "fs/read_write.c"; then
                     echo ">>>>>>>>>>>>>>>Backport Patch<<<<<<<<<<<<<<<<"
                     echo ">                                           <"
@@ -101,6 +111,15 @@ runs:
                 bash backport_patches.sh
 
                 echo "executed backport patch successfully."
+
+                if [[ "${{ env.BASEBAND_GUARD_ENABLE }}" != "true" ]]; then
+                    cp /tmp/Patches/backport_selinux_patches.sh ./
+
+                    bash backport_selinux_patches.sh
+                    echo "[+] Patched SELinux."
+                else
+                    echo "[-] Skipped SELinux Patch."
+                fi
             fi
 
           # Check syscall hook
@@ -115,6 +134,16 @@ runs:
                 cp /tmp/Patches/backport_patches.sh ./
 
                 bash backport_patches.sh
+
+                if [[ "${{ env.BASEBAND_GUARD_ENABLE }}" != "true" ]]; then
+                    cp /tmp/Patches/backport_selinux_patches.sh ./
+
+                    bash backport_selinux_patches.sh
+                    echo "[+] Patched SELinux."
+                else
+                    echo "[-] Skipped SELinux Patch."
+                fi
+
                 if grep -q "kernel_read" "fs/read_write.c"; then
                     echo ">>>>>>>>>>>>>>>Backport Patch<<<<<<<<<<<<<<<<"
                     echo ">                                           <"
@@ -154,6 +183,15 @@ runs:
                 bash backport_patches.sh
 
                 echo "executed backport patch successfully."
+
+                if [[ "${{ env.BASEBAND_GUARD_ENABLE }}" != "true" ]]; then
+                    cp /tmp/Patches/backport_selinux_patches.sh ./
+
+                    bash backport_selinux_patches.sh
+                    echo "[+] Patched SELinux."
+                else
+                    echo "[-] Skipped SELinux Patch."
+                fi
             fi
 
           # Check tracepoint hook
@@ -181,7 +219,15 @@ runs:
 
                 bash backport_patches.sh
 
-                bash backport_patches.sh
+                if [[ "${{ env.BASEBAND_GUARD_ENABLE }}" != "true" ]]; then
+                    cp /tmp/Patches/backport_selinux_patches.sh ./
+
+                    bash backport_selinux_patches.sh
+                    echo "[+] Patched SELinux."
+                else
+                    echo "[-] Skipped SELinux Patch."
+                fi
+
                 if grep -q "kernel_read" "fs/read_write.c"; then
                     echo ">>>>>>>>>>>>>>>Backport Patch<<<<<<<<<<<<<<<<"
                     echo ">                                           <"
@@ -221,6 +267,15 @@ runs:
                 bash backport_patches.sh
 
                 echo "executed backport patch successfully."
+
+                if [[ "${{ env.BASEBAND_GUARD_ENABLE }}" != "true" ]]; then
+                    cp /tmp/Patches/backport_selinux_patches.sh ./
+
+                    bash backport_selinux_patches.sh
+                    echo "[+] Patched SELinux."
+                else
+                    echo "[-] Skipped SELinux Patch."
+                fi
             fi
 
           else
