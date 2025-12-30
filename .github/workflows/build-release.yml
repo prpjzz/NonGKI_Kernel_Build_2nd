@@ -38,7 +38,7 @@ jobs:
       - build-kernel
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.build-kernel == true)
     env:
-      REPO_OWNER: JackA1ltman
+      REPO_OWNER: prpjzz
       REPO_NAME: NonGKI_Kernel_Build
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       RELEASE_NAME: "Pre-built"
