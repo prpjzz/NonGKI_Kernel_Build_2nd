@@ -15,7 +15,7 @@ env:
   KERNEL_SOURCE : "https://github.com/fukiame/android_kernel_vsmart_msm8953"
   KERNEL_BRANCH : "lineage-22.2"
 
-  CLANG_SOURCE : "https://codeberg.org/TelegramAt25/platform_prebuilts_clang_host_linux-x86_clang-r450784d"
+  CLANG_SOURCE : "https://codeberg.org/TelegramAt25/platform_prebuilts_clang_host_linux-x86_clang-r450784d.git"
   CLANG_BRANCH : "android13-release"
 
   GCC_GNU : false
