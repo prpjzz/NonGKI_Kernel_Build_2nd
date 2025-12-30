@@ -9,10 +9,10 @@ env:
   DEVICE_NAME : "pixel_4_xl"
   DEVICE_CODENAME : "coral"
 
-  CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu- KCFLAGS=-enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang"
+  CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
   EXTRA_CMDS : "LD=ld.lld AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1"
 
-  KERNEL_SOURCE : "https://github.com/freak07/FLORAL.git"
+  KERNEL_SOURCE : "https://github.com/Rum1kaLab/kernel_google_floral.git"
   KERNEL_BRANCH : "master_T_floral_caf_27"
 
   CLANG_SOURCE : "https://codeberg.org/TelegramAt25/platform_prebuilts_clang_host_linux-x86_clang-r450784d.git"
@@ -33,9 +33,9 @@ env:
   KERNELSU_BRANCH : ""
 
   KERNELSU_AUTO_GET : "true"
-  KERNELSU_AUTO_FORK : "rsuntk" # magic, rsuntk , next and sukisu
+  KERNELSU_AUTO_FORK : "sukisu" # magic, rsuntk , next and sukisu
 
-  SUSFS_ENABLE : false
+  SUSFS_ENABLE : true
   SUSFS_FIXED : true
   
   AK3_SOURCE : "https://github.com/SOVIET-ANDROID/AnyKernel3.git"
