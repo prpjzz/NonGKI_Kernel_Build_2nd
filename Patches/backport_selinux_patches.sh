@@ -16,7 +16,7 @@ KERNEL_VERSION=$(head -n 3 Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print
 FIRST_VERSION=$(echo "$KERNEL_VERSION" | awk -F '.' '{print $1}')
 SECOND_VERSION=$(echo "$KERNEL_VERSION" | awk -F '.' '{print $2}')
 
-echo "Current backport patch version:$PATCH_DATE"
+echo "Current SELinux backport patch version:$PATCH_DATE"
 
 for i in "${patch_files[@]}"; do
 
@@ -41,6 +41,8 @@ for i in "${patch_files[@]}"; do
     # security/ changes
     ## selinux/hooks.c
     security/selinux/hooks.c)
+        echo "======================================"
+
         if [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 20 ] && grep -q "selinux_inode" "drivers/kernelsu/file_wrapper.c" >/dev/null 2>&1; then
             sed -i 's/struct inode_security_struct \*isec = inode->i_security/struct inode_security_struct *isec = selinux_inode(inode)/g' security/selinux/hooks.c
             sed -i 's/return inode->i_security/return selinux_inode(inode)/g' security/selinux/hooks.c
@@ -104,6 +106,8 @@ for i in "${patch_files[@]}"; do
         else
             echo "[-] KernelSU have no selinux_inode, Skipped."
         fi
+
+        echo "======================================"
         ;;
     ## selinux/xfrm.c
     security/selinux/xfrm.c)
@@ -121,6 +125,8 @@ for i in "${patch_files[@]}"; do
         else
             echo "[-] KernelSU have no selinux_cred, Skipped."
         fi
+
+        echo "======================================"
         ;;
     ## selinux/include/objsec.h
     security/selinux/include/objsec.h)
@@ -162,6 +168,7 @@ for i in "${patch_files[@]}"; do
             echo "[-] KernelSU have no selinux_cred, Skipped."
         fi
 
+        echo "======================================"
         ;;
 
     esac

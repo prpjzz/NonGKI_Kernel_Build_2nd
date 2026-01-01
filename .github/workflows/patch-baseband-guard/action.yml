@@ -19,7 +19,15 @@ runs:
             echo "=======Detect======="
             echo "= Found DEFINE_LSM ="
             echo "===================="
-            sed -i 's/\(CONFIG_LSM="[^"]*\)"/\1,baseband_guard"/' ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+
+            if grep -q "CONFIG_LSM" "./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}"; then
+                echo "[-] Have not found default CONFIG_LSM values."
+                echo 'CONFIG_LSM="lockdown,yama,loadpin,safesetid,integrity,selinux,smack,tomoyo,apparmor,baseband_guard"' >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+            else
+                echo "[+] Found default CONFIG_LSM values."
+                sed -i 's/\(CONFIG_LSM="[^"]*\)"/\1,baseband_guard"/' ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
+            fi
+
           fi
 
           echo "Patched Baseband Guard for your kernel successfully."
