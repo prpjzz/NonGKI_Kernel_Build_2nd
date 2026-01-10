@@ -12,7 +12,7 @@ env:
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
   EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1"
 
-  KERNEL_SOURCE : "https://github.com/fukiame/android_kernel_vsmart_msm8953"
+  KERNEL_SOURCE : "https://github.com/Rum1kaLab/android_kernel_vsmart_msm8953"
   KERNEL_BRANCH : "lineage-22.2"
 
   CLANG_SOURCE : "https://codeberg.org/TelegramAt25/platform_prebuilts_clang_host_linux-x86_clang-r450784d.git"
@@ -29,8 +29,8 @@ env:
   DEFCONFIG_ORIGIN_IMAGE: ""
   DEFCONFIG_FROM_BOOT: false
 
-  KERNELSU_SOURCE : "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh"
-  KERNELSU_BRANCH : "tmp-builtin"
+  KERNELSU_SOURCE : "https://raw.githubusercontent.com/ReSukiSU/ReSukiSu/main/kernel/setup.sh"
+  KERNELSU_BRANCH : "builtin"
 
   KERNELSU_AUTO_GET : "false" # if u want easy setting kernelsu, u can true.
   KERNELSU_AUTO_FORK : "sukisu" # magic, rsuntk, next, wild, jingmatrix and sukisu
@@ -62,7 +62,7 @@ env:
 
   SUSFS_FOLDER_FIXED: "mix2s_evox_a15" # Fill in your patch prefix directory here. Leave it blank if there isn't one. -> your_folder
   SUSFS_155_FIXED: "susfs_155_fixed" # Fill in your patches here. If there are multiple patches, please separate them with a comma. Leave it blank if there isn't one. -> patch1,patch2 (Only v1.5.5 SuSFS)
-  SUSFS_LATEST_FIXED: "" # Fill in your patches here. If there are multiple patches, please separate them with a comma. Leave it blank if there isn't one. -> patch1,patch2
+  SUSFS_PATCH_FIXED: "susfs_fixed" # Fill in your patches here. If there are multiple patches, please separate them with a comma. Leave it blank if there isn't one. -> patch1,patch2
 
   REKERNEL_ENABLE: "true" # if u need Re:Kernel.
 
@@ -72,7 +72,7 @@ env:
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
   KPM_PATCH_SOURCE: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
 
-  BASEBAND_GUARD_ENABLE: "false" #if u want prevent unauthorized writes to critical partitions/device nodes.
+  BASEBAND_GUARD_ENABLE: "true" #if u want prevent unauthorized writes to critical partitions/device nodes.
   BASEBAND_GUARD_BOOT: "false" #if u want to protect boot partition.
 
   HIDE_STUFF: "true" 
