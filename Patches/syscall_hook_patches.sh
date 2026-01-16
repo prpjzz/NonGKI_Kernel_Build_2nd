@@ -18,7 +18,7 @@ patch_files=(
     kernel/sys.c
 )
 
-PATCH_LEVEL="1.7"
+PATCH_LEVEL="1.9"
 KERNEL_VERSION=$(head -n 3 Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')
 FIRST_VERSION=$(echo "$KERNEL_VERSION" | awk -F '.' '{print $1}')
 SECOND_VERSION=$(echo "$KERNEL_VERSION" | awk -F '.' '{print $2}')
@@ -115,6 +115,12 @@ for i in "${patch_files[@]}"; do
         sed -i '/^#if !defined(__ARCH_WANT_STAT64) || defined(__ARCH_WANT_SYS_NEWFSTATAT)/i\#ifdef CONFIG_KSU\n__attribute__((hot))\nextern int ksu_handle_stat(int *dfd, const char __user **filename_user,\n\t\t\t\tint *flags);\n#endif\n' fs/stat.c
         sed -i '/error = vfs_fstatat(dfd, filename, \&stat, flag);/i\#ifdef CONFIG_KSU\n\tksu_handle_stat(\&dfd, \&filename, \&flag);\n#endif' fs/stat.c
 
+        if grep -q "ksu_handle_newfstat_ret" "drivers/kernelsu/syscall_table_hook.c" >/dev/null 2>&1; then
+            sed -i '/SYSCALL_DEFINE2(newfstat, unsigned int, fd, struct stat __user \*, statbuf)/i\#ifdef CONFIG_KSU\nextern void ksu_handle_newfstat_ret(unsigned int *fd, struct stat __user **statbuf_ptr);\n#if defined(__ARCH_WANT_STAT64) || defined(__ARCH_WANT_COMPAT_STAT64)\nextern void ksu_handle_fstat64_ret(unsigned int *fd, struct stat64 __user **statbuf_ptr); \/\/ optional\n#endif\n#endif\n' fs/stat.c
+            sed -i '/error = cp_new_stat(\&stat, statbuf);/a\#ifdef CONFIG_KSU\n\tksu_handle_newfstat_ret(\&fd, \&statbuf);\n#endif\n' fs/stat.c
+            awk '/error = cp_new_stat64\(&stat, statbuf\);/{line=$0; lnum=NR} {lines[NR]=$0} END {for(i=1;i<=NR;i++) {print lines[i]; if(i==lnum) {print "#ifdef CONFIG_KSU // for 32-bit"; print "\tksu_handle_fstat64_ret(&fd, &statbuf);"; print "#endif"}}}' fs/stat.c > fs/stat.c.tmp && mv fs/stat.c.tmp fs/stat.c
+        fi
+
         if grep -q "ksu_handle_stat" "fs/stat.c"; then
             echo "[+] fs/stat.c Patched!"
             echo "[+] Count: $(grep -c "ksu_handle_stat" "fs/stat.c")"
@@ -150,14 +156,18 @@ for i in "${patch_files[@]}"; do
     # drivers changes
     ## input/input.c
     drivers/input/input.c)
-        sed -i '/^void input_event(struct input_dev \*dev,/i \#ifdef CONFIG_KSU\nextern bool ksu_input_hook __read_mostly;\nextern __attribute__((cold)) int ksu_handle_input_handle_event(\n\t\t\tunsigned int *type, unsigned int *code, int *value);\n#endif' drivers/input/input.c
-        sed -i '0,/if (is_event_supported(type, dev->evbit, EV_MAX)) {/{s/if (is_event_supported(type, dev->evbit, EV_MAX)) {/\n#ifdef CONFIG_KSU\n\tif (unlikely(ksu_input_hook))\n\t\tksu_handle_input_handle_event(\&type, \&code, \&value);\n#endif\n\tif (is_event_supported(type, dev->evbit, EV_MAX)) {/}' drivers/input/input.c
+        if grep -q "ksu_input_hook" "drivers/kernelsu/ksud.c" >/dev/null 2>&1; then
+            sed -i '/^void input_event(struct input_dev \*dev,/i \#ifdef CONFIG_KSU\nextern bool ksu_input_hook __read_mostly;\nextern __attribute__((cold)) int ksu_handle_input_handle_event(\n\t\t\tunsigned int *type, unsigned int *code, int *value);\n#endif' drivers/input/input.c
+            sed -i '0,/if (is_event_supported(type, dev->evbit, EV_MAX)) {/{s/if (is_event_supported(type, dev->evbit, EV_MAX)) {/\n#ifdef CONFIG_KSU\n\tif (unlikely(ksu_input_hook))\n\t\tksu_handle_input_handle_event(\&type, \&code, \&value);\n#endif\n\tif (is_event_supported(type, dev->evbit, EV_MAX)) {/}' drivers/input/input.c
 
-        if grep -q "ksu_handle_input_handle_event" "drivers/input/input.c"; then
-            echo "[+] drivers/input/input.c Patched!"
-            echo "[+] Count: $(grep -c "ksu_handle_input_handle_event" "drivers/input/input.c")"
+            if grep -q "ksu_handle_input_handle_event" "drivers/input/input.c"; then
+                echo "[+] drivers/input/input.c Patched!"
+                echo "[+] Count: $(grep -c "ksu_handle_input_handle_event" "drivers/input/input.c")"
+            else
+                echo "[-] drivers/input/input.c patch failed for unknown reasons, please provide feedback in time."
+            fi
         else
-            echo "[-] drivers/input/input.c patch failed for unknown reasons, please provide feedback in time."
+            echo "[-] KernelSU have no ksu_input_hook, Skipped."
         fi
 
         echo "======================================"
@@ -220,16 +230,6 @@ for i in "${patch_files[@]}"; do
     security/selinux/hooks.c)
         if grep -q "security_secid_to_secctx" "security/selinux/hooks.c" >/dev/null 2>&1; then
             echo "[-] Detected security_secid_to_secctx existed, security/selinux/hooks.c Patched!"
-        elif [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 10 ] && grep -q "grab_transition_sids" "drivers/kernelsu/ksud.c"; then
-            sed -i '/^static int check_nnp_nosuid(const struct linux_binprm \*bprm,/i\#ifdef CONFIG_KSU\nextern bool is_ksu_transition(const struct task_security_struct *old_tsec,\n\t\t\t\tconst struct task_security_struct *new_tsec);\n#endif\n' security/selinux/hooks.c
-            sed -i '/rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);/i\#ifdef CONFIG_KSU\n\tif (is_ksu_transition(old_tsec, new_tsec))\n\t\treturn 0;\n#endif\n' security/selinux/hooks.c
-
-            if grep -q "is_ksu_transition" "security/selinux/hooks.c"; then
-                echo "[+] security/selinux/hooks.c Patched!"
-                echo "[+] Count: $(grep -c "is_ksu_transition" "security/selinux/hooks.c")"
-            else
-                echo "[-] security/selinux/hooks.c patch failed for unknown reasons, please provide feedback in time."
-            fi
         elif [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 10 ]; then
             sed -i '/int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);/i\#ifdef CONFIG_KSU\n    static u32 ksu_sid;\n    char *secdata;\n#endif' security/selinux/hooks.c
             sed -i '/if (!nnp && !nosuid)/i\#ifdef CONFIG_KSU\n    int error;\n    u32 seclen;\n#endif' security/selinux/hooks.c
