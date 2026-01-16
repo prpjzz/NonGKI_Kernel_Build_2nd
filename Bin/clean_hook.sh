@@ -5,11 +5,11 @@
 
 KSU_FOLDER=("drivers/kernelsu" "KernelSU" "KernelSU-Next")
 
-KSU_CLEAN_FILES=("fs/exec.c" "fs/read_write.c" "fs/open.c" "fs/stat.c" "fs/devpts/inode.c" "drivers/input/input.c" "drivers/tty/pty.c" "security/selinux/hooks.c" "kernel/reboot.c" "kernel/sys.c")
+KSU_CLEAN_FILES=("fs/exec.c" "fs/read_write.c" "fs/open.c" "fs/stat.c" "fs/devpts/inode.c" "fs/namei.c" "drivers/input/input.c" "drivers/tty/pty.c" "security/selinux/hooks.c" "kernel/reboot.c" "kernel/sys.c")
 
-SUSFS_CLEAN_FILES=("security/selinux/avc.c" "kernel/kallsyms.c" "kernel/sys.c" "kernel/reboot.c" "fs/statfs.c" "fs/namespace.c" "fs/proc_namespace.c" "fs/stat.c" "fs/namei.c" "fs/readdir.c" "fs/exec.c" "fs/proc/task_mmu.c" "fs/proc/base.c" "fs/proc/fd.c" "fs/proc/cmdline.c" "fs/overlayfs/super.c" "fs/overlayfs/overlayfs.h" "fs/overlayfs/inode.c" "fs/overlayfs/inode.c" "fs/notify/fdinfo.c" "fs/devpts/inode.c")
+SUSFS_CLEAN_FILES=("security/selinux/avc.c" "kernel/kallsyms.c" "kernel/sys.c" "kernel/reboot.c" "fs/dcache.c" "fs/statfs.c" "fs/namespace.c" "fs/proc_namespace.c" "fs/stat.c" "fs/namei.c" "fs/readdir.c" "fs/exec.c" "fs/proc/task_mmu.c" "fs/proc/base.c" "fs/proc/fd.c" "fs/proc/cmdline.c" "fs/overlayfs/super.c" "fs/overlayfs/overlayfs.h" "fs/overlayfs/inode.c" "fs/overlayfs/inode.c" "fs/notify/fdinfo.c" "fs/devpts/inode.c" "include/linux/sched.h" "include/linux/mount.h")
 
-SUSFS_REMAIN_CLEAN_FILES=("fs/susfs.c" "include/linux/susfs.h" "include/linux/susfs_def.h")
+SUSFS_REMAIN_CLEAN_FILES=("fs/susfs.c" "fs/sus_su.c" "include/linux/susfs.h" "include/linux/susfs_def.h")
 
 # Removal of KernelSU
 
@@ -39,6 +39,8 @@ done
 
 for file in "${SUSFS_CLEAN_FILES[@]}"; do
     sed -i '/#ifdef CONFIG_KSU_SUSFS/,/#endif/d' "${file}"
+    sed -i '/#if defined(CONFIG_KSU_SUSFS/,/#endif/d' "${file}"
+    sed -i '/#ifndef CONFIG_KSU_SUSFS/,/#endif/d' "${file}"
 
     if grep -q "CONFIG_KSU_SUSFS/" "${file}"; then
         echo "[-] Could not remove SuSFS hook from ${file}."
