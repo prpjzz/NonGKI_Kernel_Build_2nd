@@ -1,4 +1,4 @@
-# #!/bin/bash
+#!/bin/bash
 # Patches author: simonpunk @ Gitlab
 #                 backslashxx @ Github
 # Shell authon: JackA1ltman <cs2dtzq@163.com>
