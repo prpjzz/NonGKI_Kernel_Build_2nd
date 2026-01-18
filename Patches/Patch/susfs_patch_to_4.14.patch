@@ -2026,10 +2026,10 @@ index e6ceb3e..f13ac70 100644
  
 diff --git a/fs/susfs.c b/fs/susfs.c
 new file mode 100644
-index 0000000..c6222c9
+index 0000000..e6bf0ae
 --- /dev/null
 +++ b/fs/susfs.c
-@@ -0,0 +1,993 @@
+@@ -0,0 +1,995 @@
 +#include <linux/version.h>
 +#include <linux/cred.h>
 +#include <linux/fs.h>
@@ -2401,7 +2401,9 @@ index 0000000..c6222c9
 +/* sus_mount */
 +#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 +static DEFINE_SPINLOCK(susfs_spin_lock_sus_mount);
-+bool susfs_hide_sus_mnts_for_all_procs = true; // hide sus mounts for all processes by default
++// - Default to false now so zygisk can pick up the sus mounts without the need to turn it off manually in post-fs-data stage
++//   otherwise user needs to turn it on in post-fs-data stage and turn it off in boot-completed stage
++bool susfs_hide_sus_mnts_for_all_procs = false;
 +
 +void susfs_set_hide_sus_mnts_for_all_procs(void __user **user_info) {
 +	struct st_susfs_hide_sus_mnts_for_all_procs info = {0};
