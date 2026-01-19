@@ -12,7 +12,7 @@ env:
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
   EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1"
 
-  KERNEL_SOURCE : "https://github.com/Rum1kaLab/android_kernel_vsmart_msm8953"
+  KERNEL_SOURCE : "https://github.com/LumiPlayground/android_kernel_vsmart_msm8953"
   KERNEL_BRANCH : "lineage-22.2"
 
   CLANG_SOURCE : "https://codeberg.org/TelegramAt25/platform_prebuilts_clang_host_linux-x86_clang-r450784d.git"
@@ -32,10 +32,10 @@ env:
   KERNELSU_SOURCE : "https://raw.githubusercontent.com/ReSukiSU/ReSukiSu/main/kernel/setup.sh"
   KERNELSU_BRANCH : "builtin"
 
-  KERNELSU_AUTO_GET : "true" # if u want easy setting kernelsu, u can true.
+  KERNELSU_AUTO_GET : "false" # if u want easy setting kernelsu, u can true.
   KERNELSU_AUTO_FORK : "sukisu" # magic, rsuntk, next, wild, jingmatrix and sukisu
 
-  SUSFS_ENABLE : true
+  SUSFS_ENABLE : false
   SUSFS_FIXED : true
   SUSFS_UPDATE : true
 
