@@ -15,7 +15,7 @@ env:
   KERNEL_SOURCE : "https://github.com/LumiPlayground/android_kernel_vsmart_msm8953"
   KERNEL_BRANCH : "lineage-22.2"
 
-  CLANG_SOURCE : "https://github.com/Neutron-Toolchains/clang-build-catalogue/releases/download/10032024/neutron-clang-10032024.tar.zst"
+  CLANG_SOURCE : "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
   CLANG_BRANCH : "android13-release"
 
   GCC_GNU : false
