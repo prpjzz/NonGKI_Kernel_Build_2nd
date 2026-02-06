@@ -13,7 +13,7 @@ env:
   EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1"
 
   KERNEL_SOURCE : "https://github.com/fukiame/android_kernel_vsmart_msm8953"
-  KERNEL_BRANCH : "lineage-22.2"
+  KERNEL_BRANCH : "lineage-22.2-new"
 
   CLANG_SOURCE : "https://codeberg.org/TelegramAt25/platform_prebuilts_clang_host_linux-x86_clang-r450784d.git"
   CLANG_BRANCH : "android13-release"
@@ -35,7 +35,7 @@ env:
   KERNELSU_AUTO_GET : "true" # if u want easy setting kernelsu, u can true.
   KERNELSU_AUTO_FORK : "next" # magic, rsuntk, next, wild, jingmatrix and sukisu
 
-  SUSFS_ENABLE : true
+  SUSFS_ENABLE : false
   SUSFS_FIXED : true
 
   AK3_SOURCE : "https://github.com/osm0sis/AnyKernel3.git"
