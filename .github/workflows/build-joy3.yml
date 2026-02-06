@@ -13,7 +13,7 @@ env:
   EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1"
 
   KERNEL_SOURCE : "https://github.com/LumiPlayground/android_kernel_vsmart_msm8953"
-  KERNEL_BRANCH : "lineage-22.2"
+  KERNEL_BRANCH : "lineage-22.2-new"
 
   CLANG_SOURCE : "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
   CLANG_BRANCH : "android13-release"
