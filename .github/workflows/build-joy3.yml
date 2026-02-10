@@ -12,7 +12,7 @@ env:
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
   EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1"
 
-  KERNEL_SOURCE : "https://github.com/fukiame/android_kernel_vsmart_msm8953"
+  KERNEL_SOURCE : "https://github.com/LumiPlayground/android_kernel_vsmart_msm8953"
   KERNEL_BRANCH : "lineage-22.2"
 
   CLANG_SOURCE : "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
