@@ -32,7 +32,7 @@ env:
   KERNELSU_SOURCE : "https://raw.githubusercontent.com/ReSukiSU/ReSukiSu/main/kernel/setup.sh"
   KERNELSU_BRANCH : "susfs-ksud"
 
-  KERNELSU_AUTO_GET : "false" # if u want easy setting kernelsu, u can true.
+  KERNELSU_AUTO_GET : "true" # if u want easy setting kernelsu, u can true.
   KERNELSU_AUTO_FORK : "resukisu" # magic, rsuntk, next, wild, jingmatrix and sukisu
 
   SUSFS_ENABLE : true
