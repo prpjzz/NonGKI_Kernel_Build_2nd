@@ -119,6 +119,9 @@ jobs:
         run: |
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
+
+          wget https://raw.githubusercontent.com/Rum1kaLab/patches/refs/heads/main/a.patch
+          patch -p1 < a.patch
           
       - name: 🧰 Patch Kernel of Re:Kernel
         uses: ./.github/workflows/patch-rekernel
