@@ -13,9 +13,9 @@ env:
   EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1"
 
   KERNEL_SOURCE : "https://github.com/Rum1kaLab/android_kernel_vsmart_msm8953"
-  KERNEL_BRANCH : "feat/droidspaces"
+  KERNEL_BRANCH : "droidspaces"
 
-  CLANG_SOURCE : "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
+  CLANG_SOURCE : "https://github.com/fukiame/tc_builds/releases/download/Geopelia-Clang-23.0.0git/Geopelia-Clang-23.0.0git.tar.gz"
   CLANG_BRANCH : "android13-release"
 
   GCC_GNU : false
