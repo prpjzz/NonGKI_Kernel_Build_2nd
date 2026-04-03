@@ -85,7 +85,7 @@ env:
   SKIP_PATCH: "false" # Ignore errors found in Patch Debugger.
 
   BUILD_OTHER_CONFIG: "true" # Merge config files.
-  MERGE_CONFIG_FILES: "vendor/debugfs.config,droidspaces.config‎"
+  MERGE_CONFIG_FILES: ".config‎"
 
   FREE_MORE_SPACE: "false" # if u want get more space, enabled it.
 
@@ -126,7 +126,7 @@ jobs:
           ## Le9 patches
           #wget https://raw.githubusercontent.com/hakavlad/le9-patch/refs/heads/main/le9ec_patches/le9ec-4.9.patch
           #patch -p1 < le9ec-4.9.patch
-          
+           
       - name: 🧰 Patch Kernel of Re:Kernel
         uses: ./.github/workflows/patch-rekernel
 
