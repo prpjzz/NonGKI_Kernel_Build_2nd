@@ -15,7 +15,7 @@ env:
   KERNEL_SOURCE : "https://github.com/Rum1kaLab/android_kernel_vsmart_msm8953"
   KERNEL_BRANCH : "droidspaces"
 
-  CLANG_SOURCE : "https://github.com/fukiame/tc_builds/releases/download/Geopelia-Clang-23.0.0git/Geopelia-Clang-23.0.0git.tar.gz"
+  CLANG_SOURCE : "https://github.com/fukiame/tc_builds/releases/download/Geopelia-Clang-21.1.8/Geopelia-Clang-21.1.8.tar.gz"
   CLANG_BRANCH : "android13-release"
 
   GCC_GNU : false
