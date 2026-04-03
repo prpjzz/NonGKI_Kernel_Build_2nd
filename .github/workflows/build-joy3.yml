@@ -12,7 +12,7 @@ env:
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
   EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1"
 
-  KERNEL_SOURCE : "https://github.com/LumiPlayground/android_kernel_vsmart_msm8953"
+  KERNEL_SOURCE : "https://github.com/Rum1kaLab/android_kernel_vsmart_msm8953"
   KERNEL_BRANCH : "feat/droidspaces"
 
   CLANG_SOURCE : "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
@@ -85,7 +85,7 @@ env:
   SKIP_PATCH: "false" # Ignore errors found in Patch Debugger.
 
   BUILD_OTHER_CONFIG: "true" # Merge config files.
-  MERGE_CONFIG_FILES: "vendor/debugfs.config"
+  MERGE_CONFIG_FILES: "vendor/debugfs.config,vendor/droidspaces.config‎"
 
   FREE_MORE_SPACE: "false" # if u want get more space, enabled it.
 
