@@ -35,7 +35,7 @@ env:
   KERNELSU_AUTO_GET : "true" # if u want easy setting kernelsu, u can true.
   KERNELSU_AUTO_FORK : "resukisu" # magic, rsuntk, next, wild, jingmatrix and sukisu
 
-  SUSFS_ENABLE : true
+  SUSFS_ENABLE : false
   SUSFS_FIXED : true
   SUSFS_UPDATE : true
 
@@ -120,8 +120,8 @@ jobs:
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
 
-          wget https://raw.githubusercontent.com/Rum1kaLab/patches/refs/heads/main/a.patch
-          patch -p1 < a.patch
+          # wget https://raw.githubusercontent.com/Rum1kaLab/patches/refs/heads/main/a.patch
+          # patch -p1 < a.patch
           
           ## Le9 patches
           #wget https://raw.githubusercontent.com/hakavlad/le9-patch/refs/heads/main/le9ec_patches/le9ec-4.9.patch
