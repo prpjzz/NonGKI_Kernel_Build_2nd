@@ -847,7 +847,7 @@ index f9b82c7..3289914 100644
  			put_unused_fd(fd);
  			fd = PTR_ERR(f);
 diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 0495111..9200682 100644
+index 0495111..e86c03f 100644
 --- a/fs/proc/base.c
 +++ b/fs/proc/base.c
 @@ -95,6 +95,9 @@
@@ -856,42 +856,11 @@ index 0495111..9200682 100644
  #include <linux/cpufreq_times.h>
 +#if defined(CONFIG_KSU_SUSFS_SUS_MAP) || defined(CONFIG_KSU_SUSFS_OPEN_REDIRECT)
 +#include <linux/susfs_def.h>
-+#endif
++#endif // #if defined(CONFIG_KSU_SUSFS_SUS_MAP) || defined(CONFIG_KSU_SUSFS_OPEN_REDIRECT)
  #ifdef CONFIG_HARDWALL
  #include <asm/hardwall.h>
  #endif
-@@ -786,6 +789,9 @@ static ssize_t mem_rw(struct file *file, char __user *buf,
- 	ssize_t copied;
- 	char *page;
- 	unsigned int flags;
-+#ifdef CONFIG_KSU_SUSFS_SUS_MAP
-+	struct vm_area_struct *vma;
-+#endif
- 
- 	if (!mm)
- 		return 0;
-@@ -802,6 +808,20 @@ static ssize_t mem_rw(struct file *file, char __user *buf,
- 
- 	while (count > 0) {
- 		size_t this_len = min_t(size_t, count, PAGE_SIZE);
-+#ifdef CONFIG_KSU_SUSFS_SUS_MAP
-+		vma = find_vma(mm, addr);
-+		if (vma && vma->vm_file) {
-+			struct inode *inode = file_inode(vma->vm_file);
-+			if (SUSFS_IS_INODE_SUS_MAP(inode)) {
-+				if (write) {
-+					copied = -EFAULT;
-+				} else {
-+					copied = -EIO;
-+				}
-+				break;
-+			}
-+		}
-+#endif
- 
- 		if (write && copy_from_user(page, buf, this_len)) {
- 			copied = -EFAULT;
-@@ -1798,6 +1818,10 @@ out:
+@@ -1798,6 +1801,10 @@ out:
  	return ERR_PTR(error);
  }
  
@@ -902,7 +871,7 @@ index 0495111..9200682 100644
  static int do_proc_readlink(struct path *path, char __user *buffer, int buflen)
  {
  	char *tmp = (char *)__get_free_page(GFP_KERNEL);
-@@ -1807,6 +1831,17 @@ static int do_proc_readlink(struct path *path, char __user *buffer, int buflen)
+@@ -1807,6 +1814,17 @@ static int do_proc_readlink(struct path *path, char __user *buffer, int buflen)
  	if (!tmp)
  		return -ENOMEM;
  
@@ -920,25 +889,14 @@ index 0495111..9200682 100644
  	pathname = d_path(path, tmp, PAGE_SIZE);
  	len = PTR_ERR(pathname);
  	if (IS_ERR(pathname))
-@@ -2318,6 +2353,9 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
- 	struct map_files_info info;
- 	struct map_files_info *p;
- 	int ret;
-+#ifdef CONFIG_KSU_SUSFS_SUS_MAP
-+	struct inode *inode;
-+#endif
- 
- 	ret = -ENOENT;
- 	task = get_proc_task(file_inode(file));
-@@ -2370,6 +2408,11 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
+@@ -2370,6 +2388,10 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
  				vma = vma->vm_next) {
  			if (!vma->vm_file)
  				continue;
 +#ifdef CONFIG_KSU_SUSFS_SUS_MAP
-+		inode = file_inode(vma->vm_file);
-+		if (SUSFS_IS_INODE_SUS_MAP(inode))
++		if (SUSFS_IS_INODE_SUS_MAP(file_inode(vma->vm_file)))
 +			continue;
-+#endif
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
  			if (++pos <= ctx->pos)
  				continue;
  
@@ -1077,7 +1035,7 @@ index 96fc702..2c8a2df 100644
  	show_fd_locks(m, file, files);
  	if (seq_has_overflowed(m))
 diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 1347939..20b135d 100644
+index 1347939..bd721be 100644
 --- a/fs/proc/task_mmu.c
 +++ b/fs/proc/task_mmu.c
 @@ -20,6 +20,9 @@
@@ -1104,7 +1062,7 @@ index 1347939..20b135d 100644
  static void
  show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
  {
-@@ -360,14 +370,46 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
+@@ -360,14 +370,35 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
  	unsigned long start, end;
  	dev_t dev = 0;
  	const char *name = NULL;
@@ -1123,26 +1081,15 @@ index 1347939..20b135d 100644
 +		}
 +#endif // #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
 +#ifdef CONFIG_KSU_SUSFS_SUS_MAP
-+		if (SUSFS_IS_INODE_SUS_MAP(inode)) {
-+			seq_setwidth(m, 25 + sizeof(void *) * 6 - 1);
-+			seq_printf(m, "%08lx-%08lx %c%c%c%c %08llx %02x:%02x %lu ",
-+				start,
-+				end,
-+				'-',
-+				'-',
-+				'-',
-+				'p',
-+				pgoff,
-+				MAJOR(dev), MINOR(dev), ino);
-+			goto done;
-+		}
++		if (SUSFS_IS_INODE_SUS_MAP(inode))
++			return;
 +#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
  		dev = inode->i_sb->s_dev;
  		ino = inode->i_ino;
  		pgoff = ((loff_t)vma->vm_pgoff) << PAGE_SHIFT;
 +#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-+	susfs_sus_kstat_spoof_show_map_vma(inode, &dev, &ino);
-+#endif
++		susfs_sus_kstat_spoof_show_map_vma(inode, &dev, &ino);
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
  	}
  
 +#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
@@ -1151,7 +1098,7 @@ index 1347939..20b135d 100644
  	start = vma->vm_start;
  	end = vma->vm_end;
  	show_vma_header_prefix(m, start, end, flags, pgoff, dev, ino);
-@@ -376,6 +418,16 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
+@@ -376,6 +407,17 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
  	 * Print the dentry name for named mappings, and a
  	 * special [heap] marker for the heap:
  	 */
@@ -1165,87 +1112,74 @@ index 1347939..20b135d 100644
 +		return;
 +	}
 +#endif // #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
++
  	if (file) {
  		seq_pad(m, ' ');
  		seq_file_path(m, file, "\n");
-@@ -884,6 +936,20 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
+@@ -884,6 +926,12 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
  	}
  
  	if (!rollup_mode)
 +#ifdef CONFIG_KSU_SUSFS_SUS_MAP
 +	if (vma->vm_file) {
-+		struct inode *inode = file_inode(vma->vm_file);
-+		if (SUSFS_IS_INODE_SUS_MAP(inode)) {
-+			seq_printf(m,
-+				"Size:           %8lu kB\n"
-+				"KernelPageSize: %8lu kB\n"
-+				"MMUPageSize:    %8lu kB\n",
-+				(vma->vm_end - vma->vm_start) >> 10,
-+				4, 4);
-+			goto bypass_orig_flow;
-+		}
++		if (SUSFS_IS_INODE_SUS_MAP(file_inode(vma->vm_file)))
++			return 0;
 +	}
 +#endif
  		seq_printf(m,
  			   "Size:           %8lu kB\n"
  			   "KernelPageSize: %8lu kB\n"
-@@ -893,6 +959,9 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
+@@ -892,7 +940,6 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
+ 			   vma_kernel_pagesize(vma) >> 10,
  			   vma_mmu_pagesize(vma) >> 10);
  
- 
-+#ifdef CONFIG_KSU_SUSFS_SUS_MAP
-+bypass_orig_flow:
-+#endif
+-
  	if (!rollup_mode || last_vma)
  		seq_printf(m,
  			   "Rss:            %8lu kB\n"
-@@ -929,9 +998,22 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
+@@ -929,9 +976,19 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
  			   (unsigned long)(mss->pss_locked >> (10 + PSS_SHIFT)));
  
  	if (!rollup_mode) {
 +#ifdef CONFIG_KSU_SUSFS_SUS_MAP
 +	if (vma->vm_file) {
-+		struct inode *inode = file_inode(vma->vm_file);
-+		if (SUSFS_IS_INODE_SUS_MAP(inode)) {
-+			seq_puts(m, "VmFlags: mr mw me");
-+			seq_putc(m, '\n');
-+			goto bypass_orig_flow2;
-+		}
++		if (vma->vm_file && SUSFS_IS_INODE_SUS_MAP(file_inode(vma->vm_file)))
++			goto bypass_orig_flow;
 +	}
 +#endif
  		arch_show_smap(m, vma);
  		show_smap_vma_flags(m, vma);
  	}
++
 +#ifdef CONFIG_KSU_SUSFS_SUS_MAP
-+bypass_orig_flow2:
++bypass_orig_flow:
 +#endif
  	m_cache_vma(m, vma);
  	return ret;
  }
-@@ -1569,6 +1651,9 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
- 	unsigned long start_vaddr;
- 	unsigned long end_vaddr;
- 	int ret = 0, copied = 0;
+@@ -1618,6 +1675,9 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
+ 	while (count && (start_vaddr < end_vaddr)) {
+ 		int len;
+ 		unsigned long end;
 +#ifdef CONFIG_KSU_SUSFS_SUS_MAP
-+	struct vm_area_struct *vma;
-+#endif
++		struct vm_area_struct *vma;
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
  
- 	if (!mm || !mmget_not_zero(mm))
- 		goto out;
-@@ -1626,6 +1711,16 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
+ 		pm.pos = 0;
+ 		end = (start_vaddr + PAGEMAP_WALK_SIZE) & PAGEMAP_WALK_MASK;
+@@ -1625,7 +1685,15 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
+ 		if (end < start_vaddr || end > end_vaddr)
  			end = end_vaddr;
  		down_read(&mm->mmap_sem);
- 		ret = walk_page_range(start_vaddr, end, &pagemap_walk);
 +#ifdef CONFIG_KSU_SUSFS_SUS_MAP
 +		vma = find_vma(mm, start_vaddr);
-+		if (vma && vma->vm_file) {
-+			struct inode *inode = file_inode(vma->vm_file);
-+			if (SUSFS_IS_INODE_SUS_MAP(inode))
-+			{
-+				pm.buffer->pme = 0;
-+			}
-+		}
-+#endif
++		if (vma && vma->vm_file && SUSFS_IS_INODE_SUS_MAP(file_inode(vma->vm_file)))
++			goto bypass_orig_flow;
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
+ 		ret = walk_page_range(start_vaddr, end, &pagemap_walk);
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++bypass_orig_flow:
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
  		up_read(&mm->mmap_sem);
  		start_vaddr = end;
  
@@ -3853,6 +3787,43 @@ index 30801ea..0fd8fad 100644
  	up_read(&uts_sem);
  	if (copy_to_user(name, &tmp, sizeof(tmp)))
  		return -EFAULT;
+diff --git a/mm/memory.c b/mm/memory.c
+index 0879df7..af46de6 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -79,6 +79,10 @@
+ #include <asm/tlbflush.h>
+ #include <asm/pgtable.h>
+ 
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++#include <linux/susfs_def.h>
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
++
+ #include "internal.h"
+ 
+ #define CREATE_TRACE_POINTS
+@@ -5085,6 +5089,9 @@ int __access_remote_vm(struct task_struct *tsk, struct mm_struct *mm,
+ 	struct vm_area_struct *vma;
+ 	void *old_buf = buf;
+ 	int write = gup_flags & FOLL_WRITE;
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++	vma = find_vma(mm, addr);
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
+ 
+ 	down_read(&mm->mmap_sem);
+ 	/* ignore errors, just check how much was successfully transferred */
+@@ -5093,6 +5100,11 @@ int __access_remote_vm(struct task_struct *tsk, struct mm_struct *mm,
+ 		void *maddr;
+ 		struct page *page = NULL;
+ 
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++		if (vma && vma->vm_file && SUSFS_IS_INODE_SUS_MAP(file_inode(vma->vm_file)))
++			break;
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
++
+ 		ret = get_user_pages_remote(tsk, mm, addr, 1,
+ 				gup_flags, &page, &vma, NULL);
+ 		if (ret <= 0) {
 diff --git a/security/selinux/avc.c b/security/selinux/avc.c
 index 1b8f957..9e216e0 100644
 --- a/security/selinux/avc.c
@@ -3909,3 +3880,229 @@ index 1b8f957..9e216e0 100644
  	BUG_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map));
  	audit_log_format(ab, " tclass=%s", secclass_map[tclass-1].name);
  }
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index bb24c8e..20f0b3b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -98,6 +98,11 @@
+ #include "audit.h"
+ #include "avc_ss.h"
+ 
++#ifdef CONFIG_KSU_SUSFS
++extern struct selinux_state fake_state;
++extern bool ksu_selinux_hide_running __read_mostly;
++#endif // #ifdef CONFIG_KSU_SUSFS
++
+ struct selinux_state selinux_state;
+ 
+ /* SECMARK reference count */
+@@ -6336,6 +6341,44 @@ abort_change:
+ 	return error;
+ }
+ 
++
++#ifdef CONFIG_KSU_SUSFS
++static int my_setprocattr(const char *name, void *value, size_t size)
++{
++	u32 mysid = current_sid(), sid = 0;
++	int error;
++	char *str = value;
++
++	// apply to all app uids
++	if (likely(current_uid().val < 10000 ||
++				!ksu_selinux_hide_running ||
++				strcmp(name, "current")))
++		return selinux_setprocattr(name, value, size);
++
++	error = avc_has_perm(&selinux_state,
++				     mysid, mysid, SECCLASS_PROCESS,
++				     PROCESS__SETCURRENT, NULL);
++
++	if (error)
++		return error;
++
++	/* Obtain a SID for the context, if one was specified. */
++	if (size && str[0] && str[0] != '\n') {
++		if (str[size-1] == '\n') {
++			str[size-1] = 0;
++			size--;
++		}
++
++		error = security_context_to_sid(&fake_state, value, size,
++						&sid, GFP_KERNEL);
++		if (error)
++			return error;
++	}
++
++	return selinux_setprocattr(name, value, size);
++}
++#endif // #ifdef CONFIG_KSU_SUSFS
++
+ static int selinux_ismaclabel(const char *name)
+ {
+ 	return (strcmp(name, XATTR_SELINUX_SUFFIX) == 0);
+@@ -6868,7 +6911,11 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(d_instantiate, selinux_d_instantiate),
+ 
+ 	LSM_HOOK_INIT(getprocattr, selinux_getprocattr),
++#ifdef CONFIG_KSU_SUSFS
++	LSM_HOOK_INIT(setprocattr, my_setprocattr),
++#else
+ 	LSM_HOOK_INIT(setprocattr, selinux_setprocattr),
++#endif // #ifdef CONFIG_KSU_SUSFS
+ 
+ 	LSM_HOOK_INIT(ismaclabel, selinux_ismaclabel),
+ 	LSM_HOOK_INIT(secid_to_secctx, selinux_secid_to_secctx),
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 816b515..25231bd 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -42,6 +42,11 @@
+ #include "objsec.h"
+ #include "conditional.h"
+ 
++#ifdef CONFIG_KSU_SUSFS
++extern struct selinux_state fake_state;
++extern bool ksu_selinux_hide_running __read_mostly;
++#endif // #ifdef CONFIG_KSU_SUSFS
++
+ enum sel_inos {
+ 	SEL_ROOT_INO = 2,
+ 	SEL_LOAD,	/* load policy */
+@@ -626,6 +631,47 @@ out:
+ 	return length;
+ }
+ 
++
++#ifdef CONFIG_KSU_SUSFS
++static ssize_t my_write_context(struct file *file, char *buf, size_t size)
++{
++	char *canon = NULL;
++	u32 sid, len;
++	ssize_t length;
++
++	// apply to all app uids
++	if (likely(current_uid().val < 10000 || !ksu_selinux_hide_running))
++		return sel_write_context(file, buf, size);
++
++	length = avc_has_perm(&selinux_state,
++			      current_sid(), SECINITSID_SECURITY,
++			      SECCLASS_SECURITY, SECURITY__CHECK_CONTEXT, NULL);
++	if (length)
++		goto out;
++
++	length = security_context_to_sid(&fake_state, buf, size, &sid, GFP_KERNEL);
++	if (length)
++		goto out;
++
++	length = security_sid_to_context(&fake_state, sid, &canon, &len);
++	if (length)
++		goto out;
++
++	length = -ERANGE;
++	if (len > SIMPLE_TRANSACTION_LIMIT) {
++		pr_err("SELinux: %s:  context size (%u) exceeds "
++			"payload max\n", __func__, len);
++		goto out;
++	}
++
++	memcpy(buf, canon, len);
++	length = len;
++out:
++	kfree(canon);
++	return length;
++}
++#endif // #ifdef CONFIG_KSU_SUSFS
++
+ static ssize_t sel_read_checkreqprot(struct file *filp, char __user *buf,
+ 				     size_t count, loff_t *ppos)
+ {
+@@ -766,14 +812,26 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size);
+ static ssize_t sel_write_relabel(struct file *file, char *buf, size_t size);
+ static ssize_t sel_write_user(struct file *file, char *buf, size_t size);
+ static ssize_t sel_write_member(struct file *file, char *buf, size_t size);
++#ifdef CONFIG_KSU_SUSFS
++static ssize_t my_write_access(struct file *file, char *buf, size_t size);
++static ssize_t my_write_context(struct file *file, char *buf, size_t size);
++#endif // #ifdef CONFIG_KSU_SUSFS
+ 
+ static ssize_t (*write_op[])(struct file *, char *, size_t) = {
++#ifdef CONFIG_KSU_SUSFS
++	[SEL_ACCESS] = my_write_access,
++#else
+ 	[SEL_ACCESS] = sel_write_access,
++#endif // #ifdef CONFIG_KSU_SUSFS
+ 	[SEL_CREATE] = sel_write_create,
+ 	[SEL_RELABEL] = sel_write_relabel,
+ 	[SEL_USER] = sel_write_user,
+ 	[SEL_MEMBER] = sel_write_member,
++#ifdef CONFIG_KSU_SUSFS
++	[SEL_CONTEXT] = my_write_context,
++#else
+ 	[SEL_CONTEXT] = sel_write_context,
++#endif // #ifdef CONFIG_KSU_SUSFS
+ };
+ 
+ static ssize_t selinux_transaction_write(struct file *file, const char __user *buf, size_t size, loff_t *pos)
+@@ -861,6 +919,61 @@ out:
+ 	return length;
+ }
+ 
++#ifdef CONFIG_KSU_SUSFS
++static ssize_t my_write_access(struct file *file, char *buf, size_t size)
++{
++	char *scon = NULL, *tcon = NULL;
++	u32 ssid, tsid;
++	u16 tclass;
++	struct av_decision avd;
++	ssize_t length;
++
++	// apply to all app uids
++	if (likely(current_uid().val < 10000 || !ksu_selinux_hide_running))
++		return sel_write_access(file, buf, size);
++
++	length = avc_has_perm(&selinux_state,
++			      current_sid(), SECINITSID_SECURITY,
++			      SECCLASS_SECURITY, SECURITY__COMPUTE_AV, NULL);
++	if (length)
++		goto out;
++
++	length = -ENOMEM;
++	scon = kzalloc(size + 1, GFP_KERNEL);
++	if (!scon)
++		goto out;
++
++	length = -ENOMEM;
++	tcon = kzalloc(size + 1, GFP_KERNEL);
++	if (!tcon)
++		goto out;
++
++	length = -EINVAL;
++	if (sscanf(buf, "%s %s %hu", scon, tcon, &tclass) != 3)
++		goto out;
++
++	length = security_context_str_to_sid(&fake_state, scon, &ssid, GFP_KERNEL);
++	if (length)
++		goto out;
++
++	length = security_context_str_to_sid(&fake_state, tcon, &tsid, GFP_KERNEL);
++	if (length)
++		goto out;
++
++	security_compute_av_user(&fake_state, ssid, tsid, tclass, &avd);
++
++	length = scnprintf(buf, SIMPLE_TRANSACTION_LIMIT,
++			  "%x %x %x %x %u %x",
++			  avd.allowed, 0xffffffff,
++			  avd.auditallow, avd.auditdeny,
++			  avd.seqno, avd.flags);
++out:
++	kfree(tcon);
++	kfree(scon);
++	return length;
++}
++#endif // #ifdef CONFIG_KSU_SUSFS
++
+ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+ {
+ 	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
