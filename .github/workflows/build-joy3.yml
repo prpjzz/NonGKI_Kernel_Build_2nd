@@ -125,15 +125,15 @@ jobs:
           ## Le9 patches
           #wget https://raw.githubusercontent.com/hakavlad/le9-patch/refs/heads/main/le9ec_patches/le9ec-4.9.patch
           #patch -p1 < le9ec-4.9.patch
+
+      - name: 💿 Patch Kernel of Droidspaces
+        uses: ./.github/workflows/patch-droidspaces
            
       - name: 🧰 Patch Kernel of Re:Kernel
         uses: ./.github/workflows/patch-rekernel
 
       - name: 🔒 Patch Kernel of Baseband Guard
         uses: ./.github/workflows/patch-baseband-guard
-
-      - name: 🔧 Patch Hide Stuff
-        uses: ./.github/workflows/patch-hide-stuff
 
       - name: 🚀 Build Process
         uses: ./.github/workflows/build-process
