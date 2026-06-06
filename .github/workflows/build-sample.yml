@@ -63,6 +63,7 @@ env:
   SUSFS_PATCH_FIXED: "" # Fill in your patches here. If there are multiple patches, please separate them with a comma. Leave it blank if there isn't one. -> patch1,patch2
 
   REKERNEL_ENABLE: "false" # if u need Re:Kernel.
+  DROIDSPACES_ENABLE: "false" # if u need Droidspaces or LXC/Docker.
 
   HOOK_METHOD: "syscall" # Manual hook method -> syscall.
 
@@ -75,8 +76,6 @@ env:
 
   BASEBAND_GUARD_ENABLE: "false" #if u want prevent unauthorized writes to critical partitions/device nodes.
   BASEBAND_GUARD_BOOT: "false" #if u want to protect boot partition.
-
-  HIDE_STUFF: "false" # hide some of the features
 
   GENERATE_DTB: "false" # if u kernel need DTB , but cannot auto generate it. (Only Anykernel3).
   GENERATE_CHIP: "qcom" # only supported for qcom and mediatek.
@@ -124,11 +123,11 @@ jobs:
       - name: 🧰 Patch Kernel of Re:Kernel
         uses: ./.github/workflows/patch-rekernel
 
+      - name: 💿 Patch Kernel of Droidspaces
+        uses: ./.github/workflows/patch-droidspaces
+
       - name: 🔒 Patch Kernel of Baseband Guard
         uses: ./.github/workflows/patch-baseband-guard
-
-      - name: 🔧 Patch Hide Stuff
-        uses: ./.github/workflows/patch-hide-stuff
 
       - name: 🚀 Build Process
         uses: ./.github/workflows/build-process
