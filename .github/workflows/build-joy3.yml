@@ -65,7 +65,7 @@ env:
 
   REKERNEL_ENABLE: "false" # if u need Re:Kernel.
   DROIDSPACES_ENABLE: "true"
-  NOMOUNT_ENABLE: "false"
+  NOMOUNT_ENABLE: "true"
 
   HOOK_METHOD: "syscall" # manual hook method,can choice : normal, syscall and tracepoint.
 
