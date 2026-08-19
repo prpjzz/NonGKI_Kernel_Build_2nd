@@ -125,8 +125,8 @@ jobs:
           # patch -p1 < a.patch
           
           ## Le9 patches
-          wget https://raw.githubusercontent.com/hakavlad/le9-patch/refs/heads/main/le9ec_patches/le9ec-4.9.patch
-          patch -p1 < le9ec-4.9.patch
+          wget https://github.com/JackA1ltman/kernel_xiaomi_sdm845_binder_cgroup_v2/commit/289978483ea4d94c547001aff6d04457ddade64f.patch
+          patch -p1 < 289978483ea4d94c547001aff6d04457ddade64f.patch
 
       - name: 💿 Patch Kernel of Droidspaces
         uses: ./.github/workflows/patch-droidspaces
