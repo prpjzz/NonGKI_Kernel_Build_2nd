@@ -117,7 +117,7 @@ jobs:
         run: |
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
-          ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}"
+          # ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}"
           echo "CONFIG_LOCALVERSION="-perf"" > arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}
           # Nothing
 
