@@ -89,7 +89,7 @@ env:
 
 jobs:
   build-kernel:
-    name: Build Sample YAML
+    name: Build Floral Kernel
     runs-on: ubuntu-24.04 # u can changed to ubuntu 22.04, and need container set ubuntu-24.04
     # container: archlinux/archlinux:latest # if u need use arch linux -> archlinux/archlinux:latest or ubuntu 20.04 -> ubuntu:focal
     env:
