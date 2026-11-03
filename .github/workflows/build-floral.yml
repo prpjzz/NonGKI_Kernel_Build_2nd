@@ -15,8 +15,8 @@ env:
   KERNEL_SOURCE : "https://github.com/Rum1kaLab/kernel_google_msm-4.14"
   KERNEL_BRANCH : "lineage-24.0"
 
-  CLANG_SOURCE : "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86"
-  CLANG_BRANCH : "mirror-goog-main-llvm-toolchain-source/clang-r614150"
+  CLANG_SOURCE : "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/3b86e40facfff1eab4065614255d573293c10373/clang-r614150.tar.gz"
+  CLANG_BRANCH : ""
 
   GCC_GNU : false
   GCC_64_SOURCE : "https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9.git"
