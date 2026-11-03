@@ -16,7 +16,7 @@ env:
   KERNEL_BRANCH : "lineage-24.0"
 
   CLANG_SOURCE : "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86"
-  CLANG_BRANCH : "android-16.0.0_r4"
+  CLANG_BRANCH : "mirror-goog-main-llvm-toolchain-source/clang-r614150"
 
   GCC_GNU : false
   GCC_64_SOURCE : "https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9.git"
