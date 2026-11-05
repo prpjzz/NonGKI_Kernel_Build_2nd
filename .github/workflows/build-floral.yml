@@ -10,7 +10,7 @@ env:
   DEVICE_CODENAME : "floral"
 
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
-  EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1 HOSTLD=ld.lld HOSTAR=llvm-ar HOSTCFLAGS='-Wno-deprecated-declarations -Wno-string-plus-int -Wno-ordered-compare-function-pointers' HOSTCXXFLAGS=-Wno-deprecated-declarations KBUILD_CFLAGS_KERNEL='-Wno-error -Wno-string-plus-int -Wno-ordered-compare-function-pointers' AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++"
+  EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1 HOSTLD=ld.lld HOSTAR=llvm-ar HOSTCXXFLAGS=-Wno-deprecated-declarations AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++"
 
   KERNEL_SOURCE : "https://github.com/Rum1kaLab/kernel_google_msm-4.14"
   KERNEL_BRANCH : "lineage-24.0"
@@ -101,6 +101,22 @@ jobs:
       - name: ⏰ Checkout repository
         uses: actions/checkout@v6
 
+      - name: 🛠️ Setup Container Environment
+        run: |
+          echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/90assumeyes
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -y
+          apt-get remove -y g++-multilib gcc-multilib || true
+          apt-get autoremove -y || true
+          apt-get install -y --no-install-recommends \
+            sudo git wget ca-certificates \
+            binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi \
+            device-tree-compiler python3 python3-setuptools python-is-python3 \
+            bc flex bison libssl-dev libelf-dev libncurses5 libtinfo5 \
+            libc6-dev libncurses-dev lz4 zip unzip
+          git config --global --add safe.directory '*'
+        shell: bash
+
       - name: ⌛️ Compilation environment preparation
         uses: ./.github/workflows/build-env
 
@@ -121,6 +137,11 @@ jobs:
           echo "CONFIG_LOCALVERSION="-perf"" > arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}
 
           printf -- '-g%s' "$(git rev-parse --short=12 HEAD)" > .scmversion
+          # Patch Makefile to suppress unknown warnings and GNU layout structures
+          echo "[+] Patching Makefile to bypass errors"
+          echo "KBUILD_CFLAGS += -Wno-error -Wno-unknown-warning-option -Wno-gnu-variable-sized-type-not-at-end -Wno-initializer-overrides -Wno-pointer-sign -Wno-asm-operand-widths -Wno-tautological-compare -Wno-implicit-function-declaration -w" >> Makefile
+          echo "KBUILD_HOSTCFLAGS += -Wno-error -Wno-unknown-warning-option -w" >> Makefile
+          echo "HOSTCFLAGS += -Wno-error -Wno-unknown-warning-option -w" >> Makefile
           # Nothing
 
       - name: 🧰 Patch Kernel of Re:Kernel
