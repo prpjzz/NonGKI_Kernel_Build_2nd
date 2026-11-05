@@ -6,11 +6,11 @@ on:
 
 env:
   # Device env
-  DEVICE_NAME : "device_name"
-  DEVICE_CODENAME : "device_codename"
+  DEVICE_NAME : "floral"
+  DEVICE_CODENAME : "floral"
 
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
-  EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1"
+  EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1 HOSTLD=ld.lld HOSTAR=llvm-ar HOSTCFLAGS='-Wno-deprecated-declarations -Wno-string-plus-int -Wno-ordered-compare-function-pointers' HOSTCXXFLAGS=-Wno-deprecated-declarations KBUILD_CFLAGS_KERNEL='-Wno-error -Wno-string-plus-int -Wno-ordered-compare-function-pointers' AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++"
 
   KERNEL_SOURCE : "https://github.com/Rum1kaLab/kernel_google_msm-4.14"
   KERNEL_BRANCH : "lineage-24.0"
