@@ -12,7 +12,7 @@ env:
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
   EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1 HOSTLD=ld.lld HOSTAR=llvm-ar HOSTCXXFLAGS=-Wno-deprecated-declarations AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++"
 
-  KERNEL_SOURCE : "https://github.com/Rum1kaLab/kernel_google_msm-4.14"
+  KERNEL_SOURCE : "https://github.com/LineageOS/android_kernel_google_msm-4.14"
   KERNEL_BRANCH : "lineage-24.0"
 
   CLANG_SOURCE : "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/3b86e40facfff1eab4065614255d573293c10373/clang-r614150.tar.gz"
@@ -133,8 +133,27 @@ jobs:
         run: |
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
-          # ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}"
+
+          # sysctl knobs
+          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/a7eb8e429c407cf79f8852fdf73155f42ada180a.patch > 1.patch
+          patch -p1 < 1.patch
+
+          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/402c88b0de0d0fbc5e93790bcb982a18d768270a.patch > 3.patch
+          patch -p1 < 3.patch
+          
+          ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}" \
+            --enable CONFIG_THINLTO \
+            --enable CONFIG_EROFS_FS_XATTR \
+            --enable CONFIG_EROFS_FS_POSIX_ACL \
+            --enable CONFIG_EROFS_FS_SECURITY \
+            --enable CONFIG_EROFS_FS_ZIP
+
+          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/ab7d27f1cd1b1204e94bf1335d839973dbf155f6.patch > 2.patch
+          patch -p1 < 2.patch 
+
+          
           echo "CONFIG_LOCALVERSION="-perf"" > arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}
+          
 
           printf -- '-g%s' "$(git rev-parse --short=12 HEAD)" > .scmversion
           # Patch Makefile to suppress unknown warnings and GNU layout structures
