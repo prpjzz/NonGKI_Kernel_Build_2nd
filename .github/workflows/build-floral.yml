@@ -10,7 +10,7 @@ env:
   DEVICE_CODENAME : "floral"
 
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
-  EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1 HOSTLD=ld.lld HOSTAR=llvm-ar HOSTCXXFLAGS=-Wno-deprecated-declarations AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++"
+  EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1 HOSTLD=ld.lld HOSTAR=llvm-ar HOSTCXXFLAGS=-Wno-deprecated-declarations AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++ LD_LIBRARY_PATH=$GITHUB_WORKSPACE/clang-custom/lib"
 
   KERNEL_SOURCE : "https://github.com/LineageOS/android_kernel_google_msm-4.14"
   KERNEL_BRANCH : "lineage-24.0"
