@@ -152,7 +152,7 @@ jobs:
           patch -p1 < 2.patch 
 
           
-          echo "CONFIG_LOCALVERSION="-perf"" > arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}
+          echo "CONFIG_LOCALVERSION="-perf"" >> arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}
           
 
           printf -- '-g%s' "$(git rev-parse --short=12 HEAD)" > .scmversion
