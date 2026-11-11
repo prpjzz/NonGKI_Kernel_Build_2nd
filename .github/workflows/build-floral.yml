@@ -117,15 +117,17 @@ jobs:
           git config --global --add safe.directory '*'
         shell: bash
 
+
+
+      - name: ⌛️ Compilation environment preparation
+        uses: ./.github/workflows/build-env
+
       - name: Get AOSP dtc
         run: |
           curl -sSL "https://android.googlesource.com/platform/prebuilts/misc/+/master/linux-x86/dtc/dtc?format=TEXT" \
               | base64 -d > "$GITHUB_WORKSPACE/dtc"
           chmod +x "$GITHUB_WORKSPACE/dtc"
           "$GITHUB_WORKSPACE/dtc" --version 
-
-      - name: ⌛️ Compilation environment preparation
-        uses: ./.github/workflows/build-env
 
       - name: ⚙️ Get necessary tools
         uses: ./.github/workflows/build-ready
