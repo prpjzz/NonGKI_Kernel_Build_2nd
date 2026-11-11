@@ -10,7 +10,7 @@ env:
   DEVICE_CODENAME : "floral"
 
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
-  EXTRA_CMDS : "LD=ld.lld LLVM=1 LLVM_IAS=1 HOSTLD=ld.lld HOSTAR=llvm-ar HOSTCXXFLAGS=-Wno-deprecated-declarations AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++ LD_LIBRARY_PATH=$GITHUB_WORKSPACE/clang-custom/lib"
+  EXTRA_CMDS : "DTC_EXT=$GITHUB_WORKSPACE/dtc LD=ld.lld LLVM=1 LLVM_IAS=1 HOSTLD=ld.lld HOSTAR=llvm-ar HOSTCXXFLAGS=-Wno-deprecated-declarations AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++ LD_LIBRARY_PATH=$GITHUB_WORKSPACE/clang-custom/lib"
 
   KERNEL_SOURCE : "https://github.com/LineageOS/android_kernel_google_msm-4.14"
   KERNEL_BRANCH : "lineage-24.0"
@@ -111,11 +111,18 @@ jobs:
           apt-get install -y --no-install-recommends \
             sudo git wget ca-certificates \
             binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi \
-            device-tree-compiler python3 python3-setuptools python-is-python3 \
+            python3 python3-setuptools python-is-python3 \
             bc flex bison libssl-dev libelf-dev libncurses5 libtinfo5 \
             libc6-dev libncurses-dev lz4 zip unzip
           git config --global --add safe.directory '*'
         shell: bash
+
+      # - name: Get AOSP dtc
+      #   run: |
+      #     curl -sSL "https://android.googlesource.com/platform/prebuilts/misc/+/master/linux-x86/dtc/dtc?format=TEXT" \
+      #         | base64 -d > "$GITHUB_WORKSPACE/dtc"
+      #     chmod +x "$GITHUB_WORKSPACE/dtc"
+      #     "$GITHUB_WORKSPACE/dtc" --version 
 
       - name: ⌛️ Compilation environment preparation
         uses: ./.github/workflows/build-env
