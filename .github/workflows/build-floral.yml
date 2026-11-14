@@ -143,6 +143,13 @@ jobs:
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
 
+          ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}" \
+            --enable CONFIG_THINLTO \
+            --enable CONFIG_EROFS_FS_XATTR \
+            --enable CONFIG_EROFS_FS_POSIX_ACL \
+            --enable CONFIG_EROFS_FS_SECURITY \
+            --enable CONFIG_EROFS_FS_ZIP
+
           # sysctl knobs
           curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/a7eb8e429c407cf79f8852fdf73155f42ada180a.patch > 1.patch
           patch -p1 < 1.patch
@@ -183,13 +190,6 @@ jobs:
 
           curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/dbff509e40cd75f04a212b92319167db0a29d93f.patch > 11.patch
           patch -p1 < 11.patch
-          
-          ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}" \
-            --enable CONFIG_THINLTO \
-            --enable CONFIG_EROFS_FS_XATTR \
-            --enable CONFIG_EROFS_FS_POSIX_ACL \
-            --enable CONFIG_EROFS_FS_SECURITY \
-            --enable CONFIG_EROFS_FS_ZIP
           
           echo "CONFIG_LOCALVERSION="-perf"" >> arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}
           
