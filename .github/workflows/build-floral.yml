@@ -63,7 +63,7 @@ env:
   SUSFS_PATCH_FIXED: "" # Fill in your patches here. If there are multiple patches, please separate them with a comma. Leave it blank if there isn't one. -> patch1,patch2
 
   REKERNEL_ENABLE: "true" # if u need Re:Kernel.
-  DROIDSPACES_ENABLE: "false" # if u need Droidspaces or LXC/Docker.
+  DROIDSPACES_ENABLE: "true" # if u need Droidspaces or LXC/Docker.
   NOMOUNT_ENABLE: "true" # if u need NoMount.
 
   HOOK_METHOD: "syscall" # Manual hook method -> syscall.
@@ -147,8 +147,42 @@ jobs:
           curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/a7eb8e429c407cf79f8852fdf73155f42ada180a.patch > 1.patch
           patch -p1 < 1.patch
 
+          # WireGuard
+          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/ab7d27f1cd1b1204e94bf1335d839973dbf155f6.patch > 2.patch
+          patch -p1 < 2.patch 
+          
+          # kallsyms: increase length to 512
           curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/402c88b0de0d0fbc5e93790bcb982a18d768270a.patch > 3.patch
           patch -p1 < 3.patch
+
+          # PM/Freezer: Reduce freeze timeout to 1 second for Android
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/a7ef52846d33c87e793f021c4f754478d38f37a3.patch > 4.patch
+          patch -p1 < 4.patch
+
+          # PM / wakeup: Avoid excessive s2idle wake attempts in pm_system_wakeup()
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/851f9989ed1607a2aa729a6b360e8a36ce088b79.patch > 5.patch
+          patch -p1 < 5.patch
+
+          # PM / suspend: Clear wakeups before running PM callbacks
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/72b078af900a9e959c95cb8ab546ffd18a088c07.patch > 6.patch
+          patch -p1 < 6.patch
+
+          # PM / freezer: Abort suspend when there's a wakeup while freezing
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/ffd7943b5013cb63143106063f451212f83ddfe2.patch > 7.patch
+          patch -p1 < 7.patch
+
+          # cgroup patches
+          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/3ce1d0fab16b615e1d593ed76f7682e7def21b4f.patch > 8.patch
+          patch -p1 < 8.patch
+
+          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/46893d8a37467f5ed2b4d032662ff389618d9fd5.patch > 9.patch
+          patch -p1 < 9.patch
+
+          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/c469088536cc5e06b35956f82f0a6ea71c105ac0.patch > 10.patch
+          patch -p1 < 10.patch
+
+          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/dbff509e40cd75f04a212b92319167db0a29d93f.patch > 11.patch
+          patch -p1 < 11.patch
           
           ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}" \
             --enable CONFIG_THINLTO \
@@ -156,10 +190,6 @@ jobs:
             --enable CONFIG_EROFS_FS_POSIX_ACL \
             --enable CONFIG_EROFS_FS_SECURITY \
             --enable CONFIG_EROFS_FS_ZIP
-
-          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/ab7d27f1cd1b1204e94bf1335d839973dbf155f6.patch > 2.patch
-          patch -p1 < 2.patch 
-
           
           echo "CONFIG_LOCALVERSION="-perf"" >> arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}
           
