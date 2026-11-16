@@ -146,10 +146,10 @@ jobs:
           cd $GITHUB_WORKSPACE/device_kernel
 
           ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}" \
-            --enable CONFIG_EROFS_FS_XATTR \
-            --enable CONFIG_EROFS_FS_POSIX_ACL \
-            --enable CONFIG_EROFS_FS_SECURITY \
-            --enable CONFIG_EROFS_FS_ZIP \
+            -e EROFS_FS_XATTR \
+            -e EROFS_FS_POSIX_ACL \
+            -e EROFS_FS_SECURITY \
+            -e EROFS_FS_ZIP \
 
           # sysctl knobs
           curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/a7eb8e429c407cf79f8852fdf73155f42ada180a.patch > 1.patch
@@ -193,8 +193,9 @@ jobs:
           patch -p1 < 11.patch
           
           ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}" \
-            -d LTO \
-            -d LTO_CLANG \
+            -e LTO \
+            -e LTO_CLANG \
+            -e THINLTO \
             -d CFI \
             -d CFI_PERMISSIVE \
             -d CFI_CLANG
