@@ -146,11 +146,12 @@ jobs:
           cd $GITHUB_WORKSPACE/device_kernel
 
           ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}" \
-            --enable CONFIG_THINLTO \
+            --disable CONFIG_THINLTO \
             --enable CONFIG_EROFS_FS_XATTR \
             --enable CONFIG_EROFS_FS_POSIX_ACL \
             --enable CONFIG_EROFS_FS_SECURITY \
-            --enable CONFIG_EROFS_FS_ZIP
+            --enable CONFIG_EROFS_FS_ZIP \
+            --disable CONFIG_CFI
 
           # sysctl knobs
           curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/a7eb8e429c407cf79f8852fdf73155f42ada180a.patch > 1.patch
