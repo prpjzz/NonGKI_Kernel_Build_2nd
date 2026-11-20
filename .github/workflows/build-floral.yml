@@ -204,8 +204,6 @@ jobs:
             -d CFI_PERMISSIVE \
             -d CFI_CLANG
           
-
-          
           echo "CONFIG_LOCALVERSION="-perf"" >> arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}
           sed -i -E 's/^(CONFIG_[A-Za-z0-9_]+)=m$/\1=y/' arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}
 
