@@ -161,7 +161,7 @@ jobs:
 
           # WireGuard
           echo "[+] Add WireGuard"
-          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/ab7d27f1cd1b1204e94bf1335d839973dbf155f6.patch > 2.patch && git am 2.patch 
+          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/ab7d27f1cd1b1204e94bf1335d839973dbf155f6.patch > 2.patch && patch -p1 < 2.patch 
           
           # kallsyms: increase length to 512
           echo "[+] Increase length"
