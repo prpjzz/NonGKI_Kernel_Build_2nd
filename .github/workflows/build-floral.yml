@@ -154,42 +154,42 @@ jobs:
 
           # sysctl knobs
           echo "[+] Sysctl Knobs"
-          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/a7eb8e429c407cf79f8852fdf73155f42ada180a.patch > 1.patch && patch -p1 < 1.patch
+          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/a7eb8e429c407cf79f8852fdf73155f42ada180a.patch > 1.patch && git am 1.patch
 
           # WireGuard
           echo "[+] Add WireGuard"
-          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/ab7d27f1cd1b1204e94bf1335d839973dbf155f6.patch > 2.patch && patch -p1 < 2.patch 
+          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/ab7d27f1cd1b1204e94bf1335d839973dbf155f6.patch > 2.patch && git am 2.patch 
           
           # kallsyms: increase length to 512
           echo "[+] Increase length"
-          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/402c88b0de0d0fbc5e93790bcb982a18d768270a.patch > 3.patch && patch -p1 < 3.patch
+          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/402c88b0de0d0fbc5e93790bcb982a18d768270a.patch > 3.patch && git am 3.patch
 
           # PM/Freezer: Reduce freeze timeout to 1 second for Android
           echo "[+] Freezer"
-          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/a7ef52846d33c87e793f021c4f754478d38f37a3.patch > 4.patch && patch -p1 < 4.patch
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/a7ef52846d33c87e793f021c4f754478d38f37a3.patch > 4.patch && git am 4.patch
 
           # PM / wakeup: Avoid excessive s2idle wake attempts in pm_system_wakeup()
           echo "[+] Wakeup"
-          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/851f9989ed1607a2aa729a6b360e8a36ce088b79.patch > 5.patch && patch -p1 < 5.patch
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/851f9989ed1607a2aa729a6b360e8a36ce088b79.patch > 5.patch && git am 5.patch
 
           # PM / suspend: Clear wakeups before running PM callbacks
           echo "[+] Suspend"
-          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/72b078af900a9e959c95cb8ab546ffd18a088c07.patch > 6.patch && patch -p1 < 6.patch
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/72b078af900a9e959c95cb8ab546ffd18a088c07.patch > 6.patch && git am 6.patch
 
           # PM / freezer: Abort suspend when there's a wakeup while freezing
           echo "[+] Freezer 2"
-          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/ffd7943b5013cb63143106063f451212f83ddfe2.patch > 7.patch && patch -p1 < 7.patch
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/ffd7943b5013cb63143106063f451212f83ddfe2.patch > 7.patch && git am 7.patch
 
           # cgroup patches
           echo "[+] Patching Latest Cgroup to use with ReKernel"
-          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/3ce1d0fab16b615e1d593ed76f7682e7def21b4f.patch > 8.patch && patch -p1 < 8.patch
-          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/46893d8a37467f5ed2b4d032662ff389618d9fd5.patch > 9.patch && patch -p1 < 9.patch
-          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/c469088536cc5e06b35956f82f0a6ea71c105ac0.patch > 10.patch && patch -p1 < 10.patch
-          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/dbff509e40cd75f04a212b92319167db0a29d93f.patch > 11.patch && patch -p1 < 11.patch
+          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/3ce1d0fab16b615e1d593ed76f7682e7def21b4f.patch > 8.patch && git am 8.patch
+          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/46893d8a37467f5ed2b4d032662ff389618d9fd5.patch > 9.patch && git am 9.patch
+          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/c469088536cc5e06b35956f82f0a6ea71c105ac0.patch > 10.patch && git am 10.patch
+          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/dbff509e40cd75f04a212b92319167db0a29d93f.patch > 11.patch && git am 11.patch
 
           # Builtin modules
           echo "[+] Builtin all modules"
-          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/cd2d304737fa72cdd133d8781309dd0d3baecb00.patch > 12.patch && patch -p1 < 12.patch
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/cd2d304737fa72cdd133d8781309dd0d3baecb00.patch > 12.patch && git am 12.patch
           
           # WLAN Auto Start
           echo "[+] Auto Start module on builtin kernel"
