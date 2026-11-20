@@ -154,28 +154,23 @@ jobs:
 
           # sysctl knobs
           echo "[+] Sysctl Knobs"
-          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/a7eb8e429c407cf79f8852fdf73155f42ada180a.patch > 1.patch
-          patch -p1 < 1.patch
+          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/a7eb8e429c407cf79f8852fdf73155f42ada180a.patch > 1.patch && patch -p1 < 1.patch
 
           # WireGuard
           echo "[+] Add WireGuard"
-          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/ab7d27f1cd1b1204e94bf1335d839973dbf155f6.patch > 2.patch
-          patch -p1 < 2.patch 
+          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/ab7d27f1cd1b1204e94bf1335d839973dbf155f6.patch > 2.patch && patch -p1 < 2.patch 
           
           # kallsyms: increase length to 512
           echo "[+] Increase length"
-          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/402c88b0de0d0fbc5e93790bcb982a18d768270a.patch > 3.patch
-          patch -p1 < 3.patch
+          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/402c88b0de0d0fbc5e93790bcb982a18d768270a.patch > 3.patch && patch -p1 < 3.patch
 
           # PM/Freezer: Reduce freeze timeout to 1 second for Android
           echo "[+] Freezer"
-          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/a7ef52846d33c87e793f021c4f754478d38f37a3.patch > 4.patch
-          patch -p1 < 4.patch
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/a7ef52846d33c87e793f021c4f754478d38f37a3.patch > 4.patch && patch -p1 < 4.patch
 
           # PM / wakeup: Avoid excessive s2idle wake attempts in pm_system_wakeup()
           echo "[+] Wakeup"
-          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/851f9989ed1607a2aa729a6b360e8a36ce088b79.patch > 5.patch
-          patch -p1 < 5.patch
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/851f9989ed1607a2aa729a6b360e8a36ce088b79.patch > 5.patch && patch -p1 < 5.patch
 
           # PM / suspend: Clear wakeups before running PM callbacks
           echo "[+] Suspend"
