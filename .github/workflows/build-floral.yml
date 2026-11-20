@@ -12,7 +12,7 @@ env:
   CUSTOM_CMDS : "CLANG_TRIPLE=aarch64-linux-gnu-"
   EXTRA_CMDS : "DTC_EXT=$GITHUB_WORKSPACE/dtc LD=ld.lld LLVM=1 LLVM_IAS=1 HOSTLD=ld.lld HOSTAR=llvm-ar HOSTCXXFLAGS=-Wno-deprecated-declarations AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++ LD_LIBRARY_PATH=$GITHUB_WORKSPACE/clang-custom/lib"
 
-  KERNEL_SOURCE : "https://github.com/LineageOS/android_kernel_google_msm-4.14"
+  KERNEL_SOURCE : "https://github.com/Rum1kaLab/kernel_google_msm-4.14"
   KERNEL_BRANCH : "lineage-24.0"
 
   CLANG_SOURCE : "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/3b86e40facfff1eab4065614255d573293c10373/clang-r614150.tar.gz"
@@ -148,25 +148,6 @@ jobs:
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
           
-          echo "[+] Enable EROFS"
-          ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}" \
-            -e EROFS_FS_XATTR \
-            -e EROFS_FS_POSIX_ACL \
-            -e EROFS_FS_SECURITY \
-            -e EROFS_FS_ZIP
-
-          # sysctl knobs
-          echo "[+] Sysctl Knobs"
-          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/a7eb8e429c407cf79f8852fdf73155f42ada180a.patch > 1.patch && git am 1.patch
-
-          # WireGuard
-          echo "[+] Add WireGuard"
-          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/ab7d27f1cd1b1204e94bf1335d839973dbf155f6.patch > 2.patch && patch -p1 < 2.patch 
-          
-          # kallsyms: increase length to 512
-          echo "[+] Increase length"
-          curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/402c88b0de0d0fbc5e93790bcb982a18d768270a.patch > 3.patch && git am 3.patch
-
           # PM/Freezer: Reduce freeze timeout to 1 second for Android
           echo "[+] Freezer"
           curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/a7ef52846d33c87e793f021c4f754478d38f37a3.patch > 4.patch && git am 4.patch
