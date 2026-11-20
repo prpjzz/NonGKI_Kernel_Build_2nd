@@ -119,8 +119,6 @@ jobs:
           git config --global --add safe.directory '*'
         shell: bash
 
-
-
       - name: ⌛️ Compilation environment preparation
         uses: ./.github/workflows/build-env
 
@@ -133,6 +131,11 @@ jobs:
 
       - name: ⚙️ Get necessary tools
         uses: ./.github/workflows/build-ready
+
+      - name: Configure Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: 🪝 Patch Kernel of SUSFS
         uses: ./.github/workflows/patch-susfs
