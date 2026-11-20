@@ -149,7 +149,7 @@ jobs:
             -e EROFS_FS_XATTR \
             -e EROFS_FS_POSIX_ACL \
             -e EROFS_FS_SECURITY \
-            -e EROFS_FS_ZIP \
+            -e EROFS_FS_ZIP
 
           # sysctl knobs
           curl -L https://github.com/LineageOS/android_kernel_google_msm-4.14/commit/a7eb8e429c407cf79f8852fdf73155f42ada180a.patch > 1.patch
