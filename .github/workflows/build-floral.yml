@@ -191,6 +191,10 @@ jobs:
 
           curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/dbff509e40cd75f04a212b92319167db0a29d93f.patch > 11.patch
           patch -p1 < 11.patch
+
+          # WLAN + Audio Builtin
+          curl -L https://github.com/Rum1kaLab/patches/raw/refs/heads/main/4.14_builtin_audio_wlan_only_for_floral.patch > 12.patch
+          patch -p1 < 12.patch
           
           ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}" \
             -e LTO \
@@ -199,6 +203,7 @@ jobs:
             -d CFI \
             -d CFI_PERMISSIVE \
             -d CFI_CLANG
+          
 
           
           echo "CONFIG_LOCALVERSION="-perf"" >> arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}
