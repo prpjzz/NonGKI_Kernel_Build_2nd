@@ -174,37 +174,26 @@ jobs:
 
           # PM / suspend: Clear wakeups before running PM callbacks
           echo "[+] Suspend"
-          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/72b078af900a9e959c95cb8ab546ffd18a088c07.patch > 6.patch
-          patch -p1 < 6.patch
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/72b078af900a9e959c95cb8ab546ffd18a088c07.patch > 6.patch && patch -p1 < 6.patch
 
           # PM / freezer: Abort suspend when there's a wakeup while freezing
           echo "[+] Freezer 2"
-          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/ffd7943b5013cb63143106063f451212f83ddfe2.patch > 7.patch
-          patch -p1 < 7.patch
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/ffd7943b5013cb63143106063f451212f83ddfe2.patch > 7.patch && patch -p1 < 7.patch
 
           # cgroup patches
           echo "[+] Patching Latest Cgroup to use with ReKernel"
-          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/3ce1d0fab16b615e1d593ed76f7682e7def21b4f.patch > 8.patch
-          patch -p1 < 8.patch
-
-          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/46893d8a37467f5ed2b4d032662ff389618d9fd5.patch > 9.patch
-          patch -p1 < 9.patch
-
-          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/c469088536cc5e06b35956f82f0a6ea71c105ac0.patch > 10.patch
-          patch -p1 < 10.patch
-
-          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/dbff509e40cd75f04a212b92319167db0a29d93f.patch > 11.patch
-          patch -p1 < 11.patch
+          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/3ce1d0fab16b615e1d593ed76f7682e7def21b4f.patch > 8.patch && patch -p1 < 8.patch
+          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/46893d8a37467f5ed2b4d032662ff389618d9fd5.patch > 9.patch && patch -p1 < 9.patch
+          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/c469088536cc5e06b35956f82f0a6ea71c105ac0.patch > 10.patch && patch -p1 < 10.patch
+          curl -L https://github.com/crdroidandroid/android_kernel_xiaomi_sm8150/commit/dbff509e40cd75f04a212b92319167db0a29d93f.patch > 11.patch && patch -p1 < 11.patch
 
           # Builtin modules
           echo "[+] Builtin all modules"
-          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/cd2d304737fa72cdd133d8781309dd0d3baecb00.patch > 12.patch
-          patch -p1 < 12.patch
+          curl -L https://github.com/kerneltoast/android_kernel_google_floral/commit/cd2d304737fa72cdd133d8781309dd0d3baecb00.patch > 12.patch && patch -p1 < 12.patch
           
           # WLAN Auto Start
           echo "[+] Auto Start module on builtin kernel"
-          curl -L https://raw.githubusercontent.com/Rum1kaLab/patches/refs/heads/main/4.14_auto_start_wlan_only_for_floral.patch > 13.patch
-          patch -p1 < 13.patch
+          curl -L https://raw.githubusercontent.com/Rum1kaLab/patches/refs/heads/main/4.14_auto_start_wlan_only_for_floral.patch > 13.patch && patch -p1 < 13.patch
 
           echo "[+] Enable LTO + DIsable CFI"
           ./scripts/config --file "arch/${KERNEL_ARCH}/configs/${DEFCONFIG_NAME}" \
